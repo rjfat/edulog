@@ -30,7 +30,7 @@ class Announcement(models.Model):
 
 ### 5.2 Message Model
 ```python
-# messages/models.py
+# messaging/models.py
 from django.db import models
 from accounts.models import User
 
@@ -71,7 +71,7 @@ templates/
 ├── announcements/
 │   ├── announcement_list.html
 │   └── announcement_form.html
-├── messages/
+├── messaging/
 │   ├── inbox.html
 │   ├── sent.html
 │   └── compose.html

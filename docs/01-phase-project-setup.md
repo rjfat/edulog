@@ -36,7 +36,7 @@ edulog/
 │       ├── attendance/
 │       ├── announcements/
 │       ├── schedule/
-│       ├── messages/
+│       ├── messaging/
 │       └── reports/
 ├── frontend/
 │   ├── css/

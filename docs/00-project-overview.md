@@ -55,7 +55,7 @@ edulog/
 │   │   ├── attendance/     # Attendance tracking
 │   │   ├── announcements/  # Announcements
 │   │   ├── schedule/       # Timetable
-│   │   ├── messages/       # Messaging system
+│   │   ├── messaging/      # Messaging system
 │   │   └── reports/        # Reports & analytics
 │   ├── templates/          # HTML templates
 │   └── static/             # Static files (CSS, JS, images)
