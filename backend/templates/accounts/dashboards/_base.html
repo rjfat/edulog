@@ -1,0 +1,26 @@
+{% extends "base_app.html" %}
+
+{# Shared frame for the four role dashboards.
+
+   Phase 2 delivers the shell and the role routing; the counts and lists these
+   panels will show arrive with courses (Phase 3) and grades/attendance
+   (Phase 4). Each panel therefore renders an honest empty state rather than a
+   placeholder number that would read as real data. #}
+
+{% block title %}Dashboard &middot; EduLog{% endblock %}
+
+{% block page_title %}Welcome, {{ user.first_name|default:user.username }}{% endblock %}
+
+{% block page_subtitle %}
+  <p>{% block dashboard_lede %}{% endblock %}</p>
+{% endblock %}
+
+{% block page_actions %}
+  <span class="badge badge-{{ user.role }}">{{ user.get_role_display }}</span>
+{% endblock %}
+
+{% block content %}
+  <div class="grid grid-cards">
+    {% block dashboard_panels %}{% endblock %}
+  </div>
+{% endblock %}

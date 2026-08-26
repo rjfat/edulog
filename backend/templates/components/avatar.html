@@ -1,0 +1,7 @@
+{% if profile_user.profile_picture %}
+  <img class="avatar {{ avatar_class }}" src="{{ profile_user.profile_picture.url }}"
+       alt="Profile photo of {{ profile_user.display_name }}" width="40" height="40">
+{% else %}
+  {# Initials stand in for a photo; the name is already beside it, so this is decorative. #}
+  <span class="avatar {{ avatar_class }}" aria-hidden="true">{{ profile_user.initials }}</span>
+{% endif %}

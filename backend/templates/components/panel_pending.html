@@ -1,0 +1,12 @@
+{# A dashboard panel for a feature that lands in a later phase. States plainly
+   that there is nothing yet instead of showing an invented figure. #}
+
+<section class="card">
+  <div class="card-header">
+    <h2>{{ panel_title }}</h2>
+  </div>
+  <div class="empty-state">
+    {% include "components/icons/inbox.html" %}
+    <p>{{ panel_message }}</p>
+  </div>
+</section>

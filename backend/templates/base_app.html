@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{# Signed-in shell: sidebar + topbar + content. #}
+
+{% block layout %}
+<div class="app">
+  {% include "components/sidebar.html" %}
+
+  <div class="main-column">
+    {% include "components/navbar.html" %}
+
+    <main class="content" id="main" tabindex="-1">
+      {% include "components/messages.html" %}
+
+      <div class="page-header">
+        <div>
+          <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+          {% block page_subtitle %}{% endblock %}
+        </div>
+        {% block page_actions %}{% endblock %}
+      </div>
+
+      {% block content %}{% endblock %}
+    </main>
+
+    {% include "components/footer.html" %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base_app.html" %}
+
+{% block title %}My profile &middot; EduLog{% endblock %}
+{% block page_title %}My profile{% endblock %}
+{% block page_subtitle %}<p>Your details as they appear to the rest of your school.</p>{% endblock %}
+
+{% block page_actions %}
+  <a class="btn btn-primary" href="{% url 'profile_edit' %}">Edit profile</a>
+{% endblock %}
+
+{% block content %}
+  <div class="grid grid-2">
+    <section class="card">
+      <div class="card-header">
+        <h2>Account</h2>
+        <span class="badge badge-{{ user.role }}">{{ user.get_role_display }}</span>
+      </div>
+
+      <div class="profile-identity">
+        {% include "components/avatar.html" with profile_user=user avatar_class="avatar-lg" %}
+        <div>
+          <h3>{{ user.display_name }}</h3>
+          <p>{{ user.email }}</p>
+        </div>
+      </div>
+
+      <dl class="detail-list">
+        <div><dt>Username</dt><dd>{{ user.username }}</dd></div>
+        <div><dt>Phone</dt><dd>{{ user.phone|default:"Not provided" }}</dd></div>
+        <div><dt>Address</dt><dd>{{ user.address|default:"Not provided"|linebreaksbr }}</dd></div>
+        <div><dt>Joined</dt><dd>{{ user.created_at|date:"j F Y" }}</dd></div>
+      </dl>
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Security</h2>
+      </div>
+      <dl class="detail-list">
+        <div><dt>Password</dt><dd>Last signed in {{ user.last_login|date:"j M Y, H:i"|default:"just now" }}</dd></div>
+      </dl>
+      <div class="form-actions">
+        <a class="btn btn-secondary" href="{% url 'password_change' %}">Change password</a>
+      </div>
+    </section>
+  </div>
+{% endblock %}

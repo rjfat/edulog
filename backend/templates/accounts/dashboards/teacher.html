@@ -1,0 +1,10 @@
+{% extends "accounts/dashboards/_base.html" %}
+
+{% block dashboard_lede %}Your classes, grading queue and attendance sheets live here.{% endblock %}
+
+{% block dashboard_panels %}
+  {% include "components/panel_pending.html" with panel_title="My classes" panel_message="You are not teaching any courses yet." %}
+  {% include "components/panel_pending.html" with panel_title="Grading to do" panel_message="Nothing is waiting to be graded." %}
+  {% include "components/panel_pending.html" with panel_title="Today's attendance" panel_message="No classes are scheduled for today." %}
+  {% include "components/panel_pending.html" with panel_title="Messages" panel_message="Your inbox is empty." %}
+{% endblock %}

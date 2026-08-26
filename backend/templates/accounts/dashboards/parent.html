@@ -1,0 +1,10 @@
+{% extends "accounts/dashboards/_base.html" %}
+
+{% block dashboard_lede %}Follow your child's progress and hear from their teachers.{% endblock %}
+
+{% block dashboard_panels %}
+  {% include "components/panel_pending.html" with panel_title="My children" panel_message="No student has been linked to your account yet." %}
+  {% include "components/panel_pending.html" with panel_title="Recent grades" panel_message="No grades have been posted yet." %}
+  {% include "components/panel_pending.html" with panel_title="Attendance" panel_message="No attendance has been recorded yet." %}
+  {% include "components/panel_pending.html" with panel_title="School announcements" panel_message="There are no announcements right now." %}
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{# Signed-out shell: value-prop panel on the left, form on the right. #}
+
+{% block layout %}
+<div class="auth">
+  <aside class="auth-aside">
+    {% include "components/brand.html" %}
+
+    <h2>{% block aside_title %}One place for grades, attendance and school updates.{% endblock %}</h2>
+
+    <ul class="auth-points">
+      <li>
+        {% include "components/icons/check.html" %}
+        <span>Students and parents follow progress as it is recorded.</span>
+      </li>
+      <li>
+        {% include "components/icons/check.html" %}
+        <span>Teachers post grades and attendance without the paperwork.</span>
+      </li>
+      <li>
+        {% include "components/icons/check.html" %}
+        <span>Administrators keep courses, people and reports in order.</span>
+      </li>
+    </ul>
+  </aside>
+
+  <main class="auth-main" id="main" tabindex="-1">
+    <div class="auth-card {% block auth_card_class %}{% endblock %}">
+      <div class="auth-mobile-brand">{% include "components/brand.html" %}</div>
+
+      {% include "components/messages.html" %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+</div>
+{% endblock %}

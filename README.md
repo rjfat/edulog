@@ -58,6 +58,46 @@ edulog/
 └── .env.example
 ```
 
+## Authentication
+
+Everyone signs in through `/accounts/login/` with either their **username or
+email address**. Roles are `admin`, `teacher`, `student` and `parent`; the
+dashboard at `/accounts/dashboard/` renders a different template per role.
+Self-service signup can only create teacher, student or parent accounts -
+admins are made in the Django admin.
+
+| URL | Purpose |
+|-----|---------|
+| `/accounts/login/` | Sign in |
+| `/accounts/register/` | Create an account |
+| `/accounts/dashboard/` | Role-specific dashboard |
+| `/accounts/profile/` | View profile |
+| `/accounts/profile/edit/` | Edit profile |
+| `/accounts/password/change/` | Change password |
+| `/accounts/password/reset/` | Request a reset link |
+
+Password-reset mail prints to the console until `DJANGO_EMAIL_BACKEND` points
+at a real SMTP backend.
+
+Restrict a view to certain roles with the decorators in
+`apps/accounts/decorators.py`:
+
+```python
+from apps.accounts.decorators import role_required, teacher_required
+
+@teacher_required
+def gradebook(request): ...
+
+@role_required('admin', 'teacher')
+def roster(request): ...
+```
+
+## Design system
+
+The UI follows `design-system/edulog/MASTER.md` - Swiss/minimal, Lexend +
+Source Sans 3, indigo primary with an orange accent. Tokens live at the top of
+`frontend/css/main.css`; use the CSS variables rather than raw hex values.
+
 ## Common commands
 
 Run from `backend/`:

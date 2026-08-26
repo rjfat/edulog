@@ -1,0 +1,28 @@
+{% load form_extras %}
+{# One form field: visible label, widget, help text, and an inline error that
+   sits next to the field it belongs to. #}
+
+<div class="form-field{% if field.errors %} has-error{% endif %}{% if field.field.required %} is-required{% endif %}">
+  <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+
+  {% if field.help_text and field.errors %}
+    {% field_widget field describedby=field.auto_id|add:"_help "|add:field.auto_id|add:"_error" %}
+  {% elif field.help_text %}
+    {% field_widget field describedby=field.auto_id|add:"_help" %}
+  {% elif field.errors %}
+    {% field_widget field describedby=field.auto_id|add:"_error" %}
+  {% else %}
+    {% field_widget field %}
+  {% endif %}
+
+  {% if field.help_text %}
+    <span class="field-help" id="{{ field.auto_id }}_help">{{ field.help_text|safe }}</span>
+  {% endif %}
+
+  {% for error in field.errors %}
+    <span class="field-error" id="{{ field.auto_id }}_error">
+      {% include "components/icons/alert.html" %}
+      <span>{{ error }}</span>
+    </span>
+  {% endfor %}
+</div>

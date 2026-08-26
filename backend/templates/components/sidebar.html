@@ -1,0 +1,42 @@
+{# Role-aware navigation. Links to unbuilt phases are omitted rather than
+   shown dead, so nothing in the sidebar leads nowhere. #}
+
+<aside class="sidebar" id="sidebar" data-open="false">
+  {% include "components/brand.html" %}
+
+  <nav class="nav" aria-label="Main">
+    <a class="nav-link" href="{% url 'dashboard' %}"
+       {% if request.resolver_match.url_name == 'dashboard' %}aria-current="page"{% endif %}>
+      {% include "components/icons/home.html" %}
+      <span>Dashboard</span>
+    </a>
+
+    <a class="nav-link" href="{% url 'profile' %}"
+       {% if request.resolver_match.url_name == 'profile' or request.resolver_match.url_name == 'profile_edit' %}aria-current="page"{% endif %}>
+      {% include "components/icons/user.html" %}
+      <span>My profile</span>
+    </a>
+
+    {% if user.is_admin %}
+      <p class="nav-heading">Administration</p>
+      <a class="nav-link" href="{% url 'admin:accounts_user_changelist' %}">
+        {% include "components/icons/users.html" %}
+        <span>Manage users</span>
+      </a>
+      <a class="nav-link" href="{% url 'admin:index' %}">
+        {% include "components/icons/settings.html" %}
+        <span>Django admin</span>
+      </a>
+    {% endif %}
+  </nav>
+
+  <div class="sidebar-footer">
+    <form action="{% url 'logout' %}" method="post">
+      {% csrf_token %}
+      <button type="submit" class="nav-link nav-link--button">
+        {% include "components/icons/logout.html" %}
+        <span>Sign out</span>
+      </button>
+    </form>
+  </div>
+</aside>

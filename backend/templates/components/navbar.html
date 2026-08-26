@@ -1,0 +1,19 @@
+<header class="topbar">
+  <div class="topbar-actions">
+    <button type="button" class="sidebar-toggle" aria-controls="sidebar" aria-expanded="false">
+      {% include "components/icons/menu.html" %}
+      <span class="visually-hidden">Open navigation menu</span>
+    </button>
+    <p class="topbar-title">{% block topbar_title %}{% endblock %}</p>
+  </div>
+
+  <div class="topbar-actions">
+    <a class="user-chip" href="{% url 'profile' %}">
+      {% include "components/avatar.html" with profile_user=user %}
+      <span class="user-chip-text">
+        <span class="user-chip-name">{{ user.display_name }}</span>
+        <span class="user-chip-meta">{{ user.get_role_display }}</span>
+      </span>
+    </a>
+  </div>
+</header>

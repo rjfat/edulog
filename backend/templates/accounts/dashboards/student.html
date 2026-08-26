@@ -1,0 +1,10 @@
+{% extends "accounts/dashboards/_base.html" %}
+
+{% block dashboard_lede %}Your grades, attendance and timetable will appear here.{% endblock %}
+
+{% block dashboard_panels %}
+  {% include "components/panel_pending.html" with panel_title="My courses" panel_message="You are not enrolled in any courses yet." %}
+  {% include "components/panel_pending.html" with panel_title="Recent grades" panel_message="No grades have been posted for you yet." %}
+  {% include "components/panel_pending.html" with panel_title="Attendance" panel_message="No attendance has been recorded yet." %}
+  {% include "components/panel_pending.html" with panel_title="Announcements" panel_message="There are no announcements right now." %}
+{% endblock %}

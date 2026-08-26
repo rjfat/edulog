@@ -1,0 +1,21 @@
+{% extends "accounts/dashboards/_base.html" %}
+
+{% block dashboard_lede %}People, courses and system health at a glance.{% endblock %}
+
+{% block dashboard_panels %}
+  <section class="card">
+    <div class="card-header">
+      <h2>People</h2>
+    </div>
+    <p class="stat-label">Accounts</p>
+    <p class="stat-value">{{ user_count }}</p>
+    <p class="stat-hint">{{ teacher_count }} teacher{{ teacher_count|pluralize }} &middot; {{ student_count }} student{{ student_count|pluralize }} &middot; {{ parent_count }} parent{{ parent_count|pluralize }}</p>
+    <div class="form-actions">
+      <a class="btn btn-secondary" href="{% url 'admin:accounts_user_changelist' %}">Manage users</a>
+    </div>
+  </section>
+
+  {% include "components/panel_pending.html" with panel_title="Courses" panel_message="Course management arrives in the next phase." %}
+  {% include "components/panel_pending.html" with panel_title="Reports" panel_message="Reporting arrives in a later phase." %}
+  {% include "components/panel_pending.html" with panel_title="Audit log" panel_message="No system activity has been recorded yet." %}
+{% endblock %}

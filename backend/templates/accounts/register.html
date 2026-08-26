@@ -1,0 +1,59 @@
+{% extends "base_auth.html" %}
+
+{% block title %}Create an account &middot; EduLog{% endblock %}
+{% block auth_card_class %}auth-card--wide{% endblock %}
+
+{% block aside_title %}Join your school on EduLog.{% endblock %}
+
+{% block content %}
+  <h1>Create your account</h1>
+  <p class="auth-lede">It takes a minute. You can add a photo and contact details afterwards.</p>
+
+  {% include "components/error_summary.html" %}
+
+  <form method="post" data-submit-feedback novalidate>
+    {% csrf_token %}
+
+    <div class="form-row">
+      {% include "components/field.html" with field=form.first_name %}
+      {% include "components/field.html" with field=form.last_name %}
+    </div>
+
+    {% include "components/field.html" with field=form.username %}
+    {% include "components/field.html" with field=form.email %}
+
+    {# Role is a radio group, so it needs a fieldset and legend rather than a label. #}
+    <fieldset class="is-required{% if form.role.errors %} has-error{% endif %}">
+      <legend class="form-legend">{{ form.role.label }}</legend>
+      <div class="radio-group">
+        {% for choice in form.role %}
+          <label for="{{ choice.id_for_label }}">
+            {{ choice.tag }}
+            <span>{{ choice.choice_label }}</span>
+          </label>
+        {% endfor %}
+      </div>
+      <span class="field-help" id="{{ form.role.auto_id }}_help">{{ form.role.help_text }}</span>
+      {% for error in form.role.errors %}
+        <span class="field-error">
+          {% include "components/icons/alert.html" %}
+          <span>{{ error }}</span>
+        </span>
+      {% endfor %}
+    </fieldset>
+
+    {% include "components/field.html" with field=form.phone %}
+    {% include "components/field_password.html" with field=form.password1 %}
+    {% include "components/field_password.html" with field=form.password2 %}
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary btn-block" data-busy-label="Creating account...">
+        Create account
+      </button>
+    </div>
+  </form>
+
+  <div class="auth-footer">
+    <p>Already have an account? <a href="{% url 'login' %}">Sign in</a>.</p>
+  </div>
+{% endblock %}

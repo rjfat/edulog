@@ -1,0 +1,30 @@
+{% extends "base_app.html" %}
+
+{% block title %}Edit profile &middot; EduLog{% endblock %}
+{% block page_title %}Edit profile{% endblock %}
+{% block page_subtitle %}<p>Changes are visible to your teachers and administrators.</p>{% endblock %}
+
+{% block content %}
+  <div class="card card--form">
+    {% include "components/error_summary.html" %}
+
+    <form method="post" enctype="multipart/form-data" data-submit-feedback novalidate>
+      {% csrf_token %}
+
+      <div class="form-row">
+        {% include "components/field.html" with field=form.first_name %}
+        {% include "components/field.html" with field=form.last_name %}
+      </div>
+
+      {% include "components/field.html" with field=form.email %}
+      {% include "components/field.html" with field=form.phone %}
+      {% include "components/field.html" with field=form.address %}
+      {% include "components/field.html" with field=form.profile_picture %}
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" data-busy-label="Saving...">Save changes</button>
+        <a class="btn btn-ghost" href="{% url 'profile' %}">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}
