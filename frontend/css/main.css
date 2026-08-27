@@ -792,6 +792,31 @@ fieldset { border: 0; padding: 0; margin: 0 0 var(--space-lg); }
 
 .detail-list dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
 
+/* --- Roster ----------------------------------------------------------------- */
+
+.roster { list-style: none; margin: 0; padding: 0; }
+
+.roster-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.roster-item:last-child { border-bottom: 0; }
+
+.roster-item-info { flex: 1; min-width: 0; }
+
+.roster-item-name { margin: 0; font-weight: 600; }
+
+.roster-item-meta {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-muted-foreground);
+  overflow-wrap: anywhere;
+}
+
 /* --- Auth pages ----------------------------------------------------------- */
 
 .auth {

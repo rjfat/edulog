@@ -3,7 +3,33 @@
 {% block dashboard_lede %}Your grades, attendance and timetable will appear here.{% endblock %}
 
 {% block dashboard_panels %}
-  {% include "components/panel_pending.html" with panel_title="My courses" panel_message="You are not enrolled in any courses yet." %}
+  <section class="card">
+    <div class="card-header">
+      <h2>My courses</h2>
+    </div>
+    {% if enrollments %}
+      <dl class="detail-list">
+        {% for enrollment in enrollments %}
+          <div>
+            <dt><a href="{% url 'course_detail' enrollment.course_id %}">{{ enrollment.course.code }}</a></dt>
+            <dd>{{ enrollment.course.teacher.display_name }}</dd>
+          </div>
+        {% endfor %}
+      </dl>
+      <div class="form-actions">
+        <a class="btn btn-secondary" href="{% url 'course_list' %}">View all courses</a>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        {% include "components/icons/book.html" %}
+        <p>You are not enrolled in any courses yet.</p>
+      </div>
+      <div class="form-actions">
+        <a class="btn btn-primary" href="{% url 'course_list' %}">Browse courses</a>
+      </div>
+    {% endif %}
+  </section>
+
   {% include "components/panel_pending.html" with panel_title="Recent grades" panel_message="No grades have been posted for you yet." %}
   {% include "components/panel_pending.html" with panel_title="Attendance" panel_message="No attendance has been recorded yet." %}
   {% include "components/panel_pending.html" with panel_title="Announcements" panel_message="There are no announcements right now." %}

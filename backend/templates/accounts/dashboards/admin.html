@@ -15,7 +15,18 @@
     </div>
   </section>
 
-  {% include "components/panel_pending.html" with panel_title="Courses" panel_message="Course management arrives in the next phase." %}
+  <section class="card">
+    <div class="card-header">
+      <h2>Courses</h2>
+    </div>
+    <p class="stat-label">Offered</p>
+    <p class="stat-value">{{ course_count }}</p>
+    <p class="stat-hint">Across every teacher.</p>
+    <div class="form-actions">
+      <a class="btn btn-secondary" href="{% url 'course_list' %}">View courses</a>
+    </div>
+  </section>
+
   {% include "components/panel_pending.html" with panel_title="Reports" panel_message="Reporting arrives in a later phase." %}
   {% include "components/panel_pending.html" with panel_title="Audit log" panel_message="No system activity has been recorded yet." %}
 {% endblock %}

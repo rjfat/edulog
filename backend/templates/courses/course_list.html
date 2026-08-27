@@ -1,0 +1,55 @@
+{% extends "base_app.html" %}
+
+{% block title %}Courses &middot; EduLog{% endblock %}
+{% block page_title %}Courses{% endblock %}
+{% block page_subtitle %}
+  <p>
+    {% if user.is_admin %}Every course offered at your school.
+    {% elif user.is_teacher %}The courses you teach.
+    {% elif user.is_student %}Courses you're enrolled in, and courses you can join.
+    {% else %}Courses at your school.{% endif %}
+  </p>
+{% endblock %}
+
+{% block page_actions %}
+  {% if user.is_admin or user.is_teacher %}
+    <a class="btn btn-primary" href="{% url 'course_create' %}">New course</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  {% if courses %}
+    <div class="grid grid-cards">
+      {% for course in courses %}
+        <a class="card" href="{% url 'course_detail' course.pk %}">
+          <div class="card-header">
+            <h2>{{ course.code }}</h2>
+            {% if user.is_student %}
+              {% if course.is_enrolled %}
+                <span class="badge badge-student">Enrolled</span>
+              {% endif %}
+            {% endif %}
+          </div>
+          <p>{{ course.name }}</p>
+          <p class="stat-hint">
+            {% if not user.is_teacher %}Taught by {{ course.teacher.display_name }} &middot; {% endif %}
+            {{ course.student_count }} student{{ course.student_count|pluralize }}
+          </p>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <section class="card">
+      <div class="empty-state">
+        {% include "components/icons/book.html" %}
+        {% if user.is_teacher %}
+          <p>You are not teaching any courses yet.</p>
+        {% elif user.is_student %}
+          <p>There are no courses to join yet.</p>
+        {% else %}
+          <p>No courses have been created yet.</p>
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+{% endblock %}

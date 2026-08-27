@@ -10,6 +10,7 @@ urlpatterns = [
     path('', RedirectView.as_view(pattern_name='dashboard'), name='home'),
     path('admin/', admin.site.urls),
     path('accounts/', include('apps.accounts.urls')),
+    path('courses/', include('apps.courses.urls')),
 ]
 
 if settings.DEBUG:

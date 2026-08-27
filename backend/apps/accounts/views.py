@@ -14,6 +14,8 @@ from django.db.models import Count, Q
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 
+from apps.courses.models import Course, Enrollment
+
 from .forms import LoginForm, ProfileForm, RegistrationForm
 from .models import Role, User
 
@@ -74,6 +76,19 @@ def dashboard(request):
             'teacher_count': counts['teachers'],
             'student_count': counts['students'],
             'parent_count': counts['parents'],
+            'course_count': Course.objects.count(),
+        }
+    elif request.user.is_teacher:
+        context = {
+            'courses': Course.objects.filter(teacher=request.user)
+            .annotate(student_count=Count('enrollments'))
+            .order_by('code')[:5],
+        }
+    elif request.user.is_student:
+        context = {
+            'enrollments': Enrollment.objects.filter(student=request.user)
+            .select_related('course', 'course__teacher')
+            .order_by('course__code')[:5],
         }
 
     return render(request, template, context)

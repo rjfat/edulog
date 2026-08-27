@@ -1,0 +1,47 @@
+{% extends "base_app.html" %}
+
+{% block title %}{{ course.code }} &middot; EduLog{% endblock %}
+{% block page_title %}{{ course.code }} &middot; {{ course.name }}{% endblock %}
+{% block page_subtitle %}<p>Taught by {{ course.teacher.display_name }}</p>{% endblock %}
+
+{% block page_actions %}
+  {% if can_manage %}
+    <a class="btn btn-secondary" href="{% url 'course_roster' course.pk %}">Manage roster</a>
+    <a class="btn btn-secondary" href="{% url 'course_edit' course.pk %}">Edit</a>
+    {% if user.is_admin %}
+      <a class="btn btn-danger" href="{% url 'course_delete' course.pk %}">Delete</a>
+    {% endif %}
+  {% elif user.is_student %}
+    {% if is_enrolled %}
+      <form method="post" action="{% url 'course_leave' course.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-secondary">Leave course</button>
+      </form>
+    {% else %}
+      <form method="post" action="{% url 'course_join' course.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Enroll</button>
+      </form>
+    {% endif %}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div class="grid grid-2">
+    <section class="card">
+      <div class="card-header">
+        <h2>About this course</h2>
+        {% if user.is_student and is_enrolled %}
+          <span class="badge badge-student">Enrolled</span>
+        {% endif %}
+      </div>
+      <p>{{ course.description|default:"No description yet."|linebreaksbr }}</p>
+      <dl class="detail-list">
+        <div><dt>Code</dt><dd>{{ course.code }}</dd></div>
+        <div><dt>Teacher</dt><dd>{{ course.teacher.display_name }}</dd></div>
+        <div><dt>Students</dt><dd>{{ course.student_count }}</dd></div>
+        <div><dt>Created</dt><dd>{{ course.created_at|date:"j F Y" }}</dd></div>
+      </dl>
+    </section>
+  </div>
+{% endblock %}

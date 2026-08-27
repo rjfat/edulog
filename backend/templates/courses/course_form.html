@@ -1,0 +1,31 @@
+{% extends "base_app.html" %}
+
+{% block title %}{% if course %}Edit {{ course.code }}{% else %}New course{% endif %} &middot; EduLog{% endblock %}
+{% block page_title %}{% if course %}Edit course{% else %}New course{% endif %}{% endblock %}
+{% block page_subtitle %}
+  <p>{% if course %}Update {{ course.name }}'s details.{% else %}Set up a new course for your school.{% endif %}</p>
+{% endblock %}
+
+{% block content %}
+  <div class="card card--form">
+    {% include "components/error_summary.html" %}
+
+    <form method="post" data-submit-feedback novalidate>
+      {% csrf_token %}
+
+      {% include "components/field.html" with field=form.name %}
+      {% include "components/field.html" with field=form.code %}
+      {% include "components/field.html" with field=form.description %}
+      {% if form.teacher %}
+        {% include "components/field.html" with field=form.teacher %}
+      {% endif %}
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" data-busy-label="Saving...">
+          {% if course %}Save changes{% else %}Create course{% endif %}
+        </button>
+        <a class="btn btn-ghost" href="{% if course %}{% url 'course_detail' course.pk %}{% else %}{% url 'course_list' %}{% endif %}">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

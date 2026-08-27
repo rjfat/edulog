@@ -3,7 +3,33 @@
 {% block dashboard_lede %}Your classes, grading queue and attendance sheets live here.{% endblock %}
 
 {% block dashboard_panels %}
-  {% include "components/panel_pending.html" with panel_title="My classes" panel_message="You are not teaching any courses yet." %}
+  <section class="card">
+    <div class="card-header">
+      <h2>My classes</h2>
+    </div>
+    {% if courses %}
+      <dl class="detail-list">
+        {% for course in courses %}
+          <div>
+            <dt><a href="{% url 'course_detail' course.pk %}">{{ course.code }}</a></dt>
+            <dd>{{ course.student_count }} student{{ course.student_count|pluralize }}</dd>
+          </div>
+        {% endfor %}
+      </dl>
+      <div class="form-actions">
+        <a class="btn btn-secondary" href="{% url 'course_list' %}">View all courses</a>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        {% include "components/icons/book.html" %}
+        <p>You are not teaching any courses yet.</p>
+      </div>
+      <div class="form-actions">
+        <a class="btn btn-primary" href="{% url 'course_create' %}">Create a course</a>
+      </div>
+    {% endif %}
+  </section>
+
   {% include "components/panel_pending.html" with panel_title="Grading to do" panel_message="Nothing is waiting to be graded." %}
   {% include "components/panel_pending.html" with panel_title="Today's attendance" panel_message="No classes are scheduled for today." %}
   {% include "components/panel_pending.html" with panel_title="Messages" panel_message="Your inbox is empty." %}

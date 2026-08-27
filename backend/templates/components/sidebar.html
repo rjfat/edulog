@@ -11,6 +11,12 @@
       <span>Dashboard</span>
     </a>
 
+    <a class="nav-link" href="{% url 'course_list' %}"
+       {% if request.path|slice:":9" == "/courses/" %}aria-current="page"{% endif %}>
+      {% include "components/icons/book.html" %}
+      <span>Courses</span>
+    </a>
+
     <a class="nav-link" href="{% url 'profile' %}"
        {% if request.resolver_match.url_name == 'profile' or request.resolver_match.url_name == 'profile_edit' %}aria-current="page"{% endif %}>
       {% include "components/icons/user.html" %}

@@ -1,0 +1,61 @@
+{% extends "base_app.html" %}
+
+{% block title %}{{ course.code }} roster &middot; EduLog{% endblock %}
+{% block page_title %}{{ course.code }} roster{% endblock %}
+{% block page_subtitle %}<p>Students enrolled in {{ course.name }}.</p>{% endblock %}
+
+{% block page_actions %}
+  <a class="btn btn-secondary" href="{% url 'course_detail' course.pk %}">Back to course</a>
+{% endblock %}
+
+{% block content %}
+  <div class="grid grid-2">
+    <section class="card">
+      <div class="card-header">
+        <h2>Enrolled students</h2>
+      </div>
+      {% if enrollments %}
+        <ul class="roster">
+          {% for enrollment in enrollments %}
+            <li class="roster-item">
+              {% include "components/avatar.html" with profile_user=enrollment.student %}
+              <div class="roster-item-info">
+                <p class="roster-item-name">{{ enrollment.student.display_name }}</p>
+                <p class="roster-item-meta">{{ enrollment.student.email }}</p>
+              </div>
+              <form method="post" action="{% url 'course_unenroll' course.pk enrollment.student_id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Remove</button>
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="empty-state">
+          {% include "components/icons/users.html" %}
+          <p>No students are enrolled yet.</p>
+        </div>
+      {% endif %}
+    </section>
+
+    <section class="card card--form">
+      <div class="card-header">
+        <h2>Enroll a student</h2>
+      </div>
+      {% if form.fields.student.queryset.exists %}
+        <form method="post" action="{% url 'course_enroll' course.pk %}" data-submit-feedback novalidate>
+          {% csrf_token %}
+          {% include "components/field.html" with field=form.student %}
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" data-busy-label="Enrolling...">Enroll student</button>
+          </div>
+        </form>
+      {% else %}
+        <div class="empty-state">
+          {% include "components/icons/users.html" %}
+          <p>Every student is already enrolled in this course.</p>
+        </div>
+      {% endif %}
+    </section>
+  </div>
+{% endblock %}

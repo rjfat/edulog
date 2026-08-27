@@ -61,5 +61,17 @@ templates/courses/
 - [x] Enrollment management
 - [x] Course templates
 
+## Notes
+
+- Role scoping: admins see and manage every course; teachers see and manage
+  only the courses they teach; students browse all courses and self-enroll
+  or leave; parents can browse (read-only) pending child-linking in a later
+  phase.
+- Enrollment can be driven two ways: a teacher/admin manages a course's
+  roster from `/courses/<id>/roster/`, or a student self-enrolls/leaves from
+  the course detail page. Both write to the same `Enrollment` model.
+- Sidebar, and the admin/teacher/student dashboards, now show live course
+  data instead of the "arrives in a later phase" placeholders.
+
 ## Next Phase
 [Phase 4: Grades & Attendance](./04-phase-grades-attendance.md)
