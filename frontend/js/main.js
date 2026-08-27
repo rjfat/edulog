@@ -63,9 +63,10 @@
   var EYE_OFF = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.9 4.24A9.1 9.1 0 0 1 12 4c6.4 0 10 7 10 7a17.6 17.6 0 0 1-2.7 3.72M6.6 6.6A17.6 17.6 0 0 0 2 11s3.6 7 10 7a9.1 9.1 0 0 0 4.1-.94"/><path d="m2 2 20 20"/><path d="M14.1 14.1a3 3 0 1 1-4.2-4.2"/></svg>';
 
   function initPasswordToggles() {
-    var fields = document.querySelectorAll('.password-field');
+    // The wrapper holds the input on its own, which is what the button anchors to.
+    var wrappers = document.querySelectorAll('.password-input');
 
-    Array.prototype.forEach.call(fields, function (field) {
+    Array.prototype.forEach.call(wrappers, function (field) {
       var input = field.querySelector('input[type="password"]');
       if (!input) return;
 

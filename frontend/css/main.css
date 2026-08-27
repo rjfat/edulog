@@ -701,17 +701,23 @@ fieldset { border: 0; padding: 0; margin: 0 0 var(--space-lg); }
   margin-top: var(--space-xl);
 }
 
-.password-field { position: relative; }
+/* Wraps the input alone, so the toggle centres on the box and is not pushed
+   down by help text or an error message below it. */
+.password-input {
+  position: relative;
+  display: block;
+}
 
 .password-toggle {
   position: absolute;
   right: var(--space-xs);
-  bottom: 1px;
+  top: 50%;
+  transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   border: 0;
   background: transparent;
   color: var(--color-muted-foreground);
