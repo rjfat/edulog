@@ -1,6 +1,6 @@
 {% load form_extras %}
-{# One form field: visible label, widget, help text, and an inline error that
-   sits next to the field it belongs to. #}
+{% comment %} One form field: visible label, widget, help text, and an inline error that
+   sits next to the field it belongs to. {% endcomment %}
 
 <div class="form-field{% if field.errors %} has-error{% endif %}{% if field.field.required %} is-required{% endif %}">
   <label for="{{ field.id_for_label }}">{{ field.label }}</label>

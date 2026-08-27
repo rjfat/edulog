@@ -355,3 +355,33 @@ class AccessibilityMarkupTests(TestCase):
 
     def test_pages_expose_a_skip_link(self):
         self.assertContains(self.client.get(reverse('login')), 'Skip to main content')
+
+
+class TemplateCommentTests(TestCase):
+    """Django's {# #} is single-line only.
+
+    Spanning one across a newline does not comment anything out - the text
+    renders onto the page. This walks every template so the mistake cannot
+    come back unnoticed.
+    """
+
+    def test_no_multiline_hash_comments(self):
+        import re
+        from pathlib import Path
+
+        from django.conf import settings
+
+        offenders = []
+        for directory in settings.TEMPLATES[0]['DIRS']:
+            for path in Path(directory).rglob('*.html'):
+                text = path.read_text(encoding='utf-8')
+                for match in re.finditer(r'\{#.*?#\}', text, re.DOTALL):
+                    if '\n' in match.group(0):
+                        line = text.count('\n', 0, match.start()) + 1
+                        offenders.append(f'{path.name}:{line}')
+
+        self.assertEqual(
+            offenders,
+            [],
+            'Multi-line {# #} renders as visible text; use {% comment %} instead.',
+        )
