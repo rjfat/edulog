@@ -1,0 +1,40 @@
+{% extends "base_app.html" %}
+
+{% block title %}{% if grade %}Edit {{ grade.assignment_name }}{% else %}New grade{% endif %} &middot; EduLog{% endblock %}
+{% block page_title %}{% if grade %}Edit grade{% else %}New grade{% endif %}{% endblock %}
+{% block page_subtitle %}
+  <p>{% if grade %}Update {{ grade.student.display_name }}'s grade for {{ grade.assignment_name }}.{% else %}Record a grade for an assignment.{% endif %}</p>
+{% endblock %}
+
+{% block content %}
+  <div class="card card--form">
+    {% include "components/error_summary.html" %}
+
+    <form method="post" data-submit-feedback novalidate>
+      {% csrf_token %}
+
+      {% if grade %}
+        <dl class="detail-list">
+          <div><dt>Student</dt><dd>{{ grade.student.display_name }}</dd></div>
+          <div><dt>Course</dt><dd>{{ grade.course.code }}</dd></div>
+        </dl>
+      {% endif %}
+
+      {% if form.course %}
+        {% include "components/field.html" with field=form.course %}
+      {% endif %}
+      {% include "components/field.html" with field=form.student %}
+      {% include "components/field.html" with field=form.assignment_name %}
+      {% include "components/field.html" with field=form.percentage %}
+      {% include "components/field.html" with field=form.grade %}
+      {% include "components/field.html" with field=form.comments %}
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" data-busy-label="Saving...">
+          {% if grade %}Save changes{% else %}Add grade{% endif %}
+        </button>
+        <a class="btn btn-ghost" href="{% url 'grade_list' %}">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

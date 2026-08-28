@@ -17,6 +17,18 @@
       <span>Courses</span>
     </a>
 
+    <a class="nav-link" href="{% url 'grade_list' %}"
+       {% if request.path|slice:":8" == "/grades/" %}aria-current="page"{% endif %}>
+      {% include "components/icons/chart.html" %}
+      <span>Grades</span>
+    </a>
+
+    <a class="nav-link" href="{% url 'attendance_list' %}"
+       {% if request.path|slice:":13" == "/attendance/" %}aria-current="page"{% endif %}>
+      {% include "components/icons/calendar.html" %}
+      <span>Attendance</span>
+    </a>
+
     <a class="nav-link" href="{% url 'profile' %}"
        {% if request.resolver_match.url_name == 'profile' or request.resolver_match.url_name == 'profile_edit' %}aria-current="page"{% endif %}>
       {% include "components/icons/user.html" %}

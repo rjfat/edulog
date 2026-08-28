@@ -15,6 +15,8 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 
 from apps.courses.models import Course, Enrollment
+from apps.attendance.models import Attendance
+from apps.grades.models import Grade
 
 from .forms import LoginForm, ProfileForm, RegistrationForm
 from .models import Role, User
@@ -83,12 +85,24 @@ def dashboard(request):
             'courses': Course.objects.filter(teacher=request.user)
             .annotate(student_count=Count('enrollments'))
             .order_by('code')[:5],
+            'recent_grades': Grade.objects.filter(course__teacher=request.user)
+            .select_related('student', 'course')
+            .order_by('-created_at')[:5],
+            'today_attendance': Attendance.objects.filter(course__teacher=request.user)
+            .select_related('student', 'course')
+            .order_by('-date', '-pk')[:5],
         }
     elif request.user.is_student:
         context = {
             'enrollments': Enrollment.objects.filter(student=request.user)
             .select_related('course', 'course__teacher')
             .order_by('course__code')[:5],
+            'recent_grades': Grade.objects.filter(student=request.user)
+            .select_related('course')
+            .order_by('-created_at')[:5],
+            'recent_attendance': Attendance.objects.filter(student=request.user)
+            .select_related('course')
+            .order_by('-date', '-pk')[:5],
         }
 
     return render(request, template, context)

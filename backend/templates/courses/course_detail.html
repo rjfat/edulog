@@ -7,6 +7,8 @@
 {% block page_actions %}
   {% if can_manage %}
     <a class="btn btn-secondary" href="{% url 'course_roster' course.pk %}">Manage roster</a>
+    <a class="btn btn-secondary" href="{% url 'grade_list' %}?course={{ course.pk }}">Grades</a>
+    <a class="btn btn-secondary" href="{% url 'attendance_list' %}?course={{ course.pk }}">Attendance</a>
     <a class="btn btn-secondary" href="{% url 'course_edit' course.pk %}">Edit</a>
     {% if user.is_admin %}
       <a class="btn btn-danger" href="{% url 'course_delete' course.pk %}">Delete</a>

@@ -11,6 +11,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('apps.accounts.urls')),
     path('courses/', include('apps.courses.urls')),
+    path('grades/', include('apps.grades.urls')),
+    path('attendance/', include('apps.attendance.urls')),
 ]
 
 if settings.DEBUG:

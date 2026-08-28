@@ -30,7 +30,53 @@
     {% endif %}
   </section>
 
-  {% include "components/panel_pending.html" with panel_title="Recent grades" panel_message="No grades have been posted for you yet." %}
-  {% include "components/panel_pending.html" with panel_title="Attendance" panel_message="No attendance has been recorded yet." %}
+  <section class="card">
+    <div class="card-header">
+      <h2>Recent grades</h2>
+    </div>
+    {% if recent_grades %}
+      <ul class="roster">
+        {% for grade in recent_grades %}
+          <li class="roster-item">
+            <div class="roster-item-info">
+              <p class="roster-item-name">{{ grade.course.code }}</p>
+              <p class="roster-item-meta">{{ grade.assignment_name }}</p>
+            </div>
+            <span class="badge badge-grade">{{ grade.grade }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+      <div class="form-actions">
+        <a class="btn btn-secondary" href="{% url 'grade_list' %}">View all grades</a>
+      </div>
+    {% else %}
+      {% include "components/panel_pending.html" with panel_title="Recent grades" panel_message="No grades have been posted for you yet." %}
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <h2>My attendance</h2>
+    </div>
+    {% if recent_attendance %}
+      <ul class="roster">
+        {% for record in recent_attendance %}
+          <li class="roster-item">
+            <div class="roster-item-info">
+              <p class="roster-item-name">{{ record.course.code }}</p>
+              <p class="roster-item-meta">{{ record.date|date:"j M Y" }}</p>
+            </div>
+            <span class="badge badge-{{ record.status }}">{{ record.get_status_display }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+      <div class="form-actions">
+        <a class="btn btn-secondary" href="{% url 'attendance_list' %}">View all attendance</a>
+      </div>
+    {% else %}
+      {% include "components/panel_pending.html" with panel_title="Attendance" panel_message="No attendance has been recorded yet." %}
+    {% endif %}
+  </section>
+
   {% include "components/panel_pending.html" with panel_title="Announcements" panel_message="There are no announcements right now." %}
 {% endblock %}

@@ -1,0 +1,86 @@
+{% extends "base_app.html" %}
+
+{% block title %}Grades &middot; EduLog{% endblock %}
+{% block page_title %}Grades{% endblock %}
+{% block page_subtitle %}
+  <p>
+    {% if user.is_student %}Your grades across every enrolled course.
+    {% elif course %}Grades for {{ course.code }} - {{ course.name }}.
+    {% else %}All recorded grades.{% endif %}
+  </p>
+{% endblock %}
+
+{% block page_actions %}
+  {% if user.is_admin or user.is_teacher %}
+    <a class="btn btn-secondary" href="{% url 'grade_report' %}{% if course %}?course={{ course.pk }}{% endif %}">Report</a>
+    <a class="btn btn-primary" href="{% url 'grade_add' %}{% if course %}?course={{ course.pk }}{% endif %}">Add grade</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  {% if course_options %}
+    <section class="card" id="course-filter">
+      <form method="get" class="inline-form">
+        <label class="visually-hidden" for="course-select">Filter by course</label>
+        <select id="course-select" name="course" class="select" onchange="this.form.submit()">
+          <option value="">All courses</option>
+          {% for option in course_options %}
+            <option value="{{ option.pk }}" {% if course and course.pk == option.pk %}selected{% endif %}>
+              {{ option.code }} - {{ option.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </form>
+    </section>
+  {% endif %}
+
+  <section class="card">
+    <div class="card-header">
+      <h2>{% if course %}{{ course.code }} grades{% else %}All grades{% endif %}</h2>
+    </div>
+    {% if grades %}
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              {% if not user.is_student %}<th>Student</th>{% endif %}
+              <th>Course</th>
+              <th>Assignment</th>
+              <th>Grade</th>
+              <th class="num">%</th>
+              <th>Date</th>
+              {% if user.is_admin or user.is_teacher %}<th></th>{% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for grade in grades %}
+              <tr>
+                {% if not user.is_student %}<td>{{ grade.student.display_name }}</td>{% endif %}
+                <td>{{ grade.course.code }}</td>
+                <td>{{ grade.assignment_name }}</td>
+                <td><span class="badge badge-grade">{{ grade.grade }}</span></td>
+                <td class="num">{{ grade.percentage|floatformat:2 }}%</td>
+                <td>{{ grade.created_at|date:"j M Y" }}</td>
+                {% if user.is_admin or user.is_teacher %}
+                  <td>
+                    <a class="btn btn-ghost btn-sm" href="{% url 'grade_edit' grade.pk %}">Edit</a>
+                    <a class="btn btn-danger btn-sm" href="{% url 'grade_delete' grade.pk %}">Delete</a>
+                  </td>
+                {% endif %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        {% include "components/icons/chart.html" %}
+        <p>
+          {% if user.is_student %}No grades have been posted for you yet.
+          {% elif course %}No grades have been recorded for this course yet.
+          {% else %}No grades have been recorded yet.{% endif %}
+        </p>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

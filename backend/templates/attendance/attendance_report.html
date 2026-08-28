@@ -1,0 +1,77 @@
+{% extends "base_app.html" %}
+
+{% block title %}Attendance report &middot; EduLog{% endblock %}
+{% block page_title %}Attendance report{% endblock %}
+{% block page_subtitle %}
+  <p>{% if course %}{{ course.code }} - {{ course.name }}{% else %}All your courses.{% endif %}</p>
+{% endblock %}
+
+{% block page_actions %}
+  <a class="btn btn-secondary" href="{% url 'attendance_list' %}{% if course %}?course={{ course.pk }}{% endif %}">All records</a>
+  <a class="btn btn-primary" href="{% url 'attendance_mark' %}{% if course %}?course={{ course.pk }}&date={% now "Y-m-d" %}{% endif %}">Mark attendance</a>
+{% endblock %}
+
+{% block content %}
+  <section class="card" id="course-filter">
+    <form method="get" class="inline-form">
+      <label class="visually-hidden" for="course-select">Filter by course</label>
+      <select id="course-select" name="course" class="select" onchange="this.form.submit()">
+        <option value="">All courses</option>
+        {% for option in course_options %}
+          <option value="{{ option.pk }}" {% if course and course.pk == option.pk %}selected{% endif %}>
+            {{ option.code }} - {{ option.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </form>
+  </section>
+
+  <div class="summary-grid">
+    <div class="summary-stat"><strong>{{ overall.total|default:0 }}</strong><span>records</span></div>
+    <div class="summary-stat"><strong>{{ overall.present|default:0 }}</strong><span>present</span></div>
+    <div class="summary-stat"><strong>{{ overall.late|default:0 }}</strong><span>late</span></div>
+    <div class="summary-stat"><strong>{{ overall.absent|default:0 }}</strong><span>absent</span></div>
+    <div class="summary-stat"><strong>{{ overall.present_rate|default:0 }}%</strong><span>present rate</span></div>
+  </div>
+
+  <section class="card">
+    <div class="card-header">
+      <h2>Per student</h2>
+    </div>
+    {% if per_student %}
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th class="num">Present</th>
+              <th class="num">Late</th>
+              <th class="num">Absent</th>
+              <th class="num">Present %</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in per_student %}
+              <tr>
+                <td>{{ row.student__first_name }} {{ row.student__last_name }}</td>
+                <td class="num">{{ row.present }}</td>
+                <td class="num">{{ row.late }}</td>
+                <td class="num">{{ row.absent }}</td>
+                <td class="num">
+                  <span class="badge {% if row.present_rate >= 80 %}badge-present{% elif row.present_rate >= 60 %}badge-late{% else %}badge-absent{% endif %}">
+                    {{ row.present_rate }}%
+                  </span>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        {% include "components/icons/calendar.html" %}
+        <p>No attendance records to report on yet.</p>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

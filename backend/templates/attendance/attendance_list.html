@@ -1,0 +1,88 @@
+{% extends "base_app.html" %}
+
+{% block title %}Attendance &middot; EduLog{% endblock %}
+{% block page_title %}Attendance{% endblock %}
+{% block page_subtitle %}
+  <p>
+    {% if user.is_student %}Your recorded attendance.
+    {% elif course %}Attendance for {{ course.code }} - {{ course.name }}.
+    {% else %}All recorded attendance.{% endif %}
+  </p>
+{% endblock %}
+
+{% block page_actions %}
+  {% if user.is_admin or user.is_teacher %}
+    <a class="btn btn-secondary" href="{% url 'attendance_report' %}{% if course %}?course={{ course.pk }}{% endif %}">Report</a>
+    <a class="btn btn-primary" href="{% url 'attendance_mark' %}{% if course %}?course={{ course.pk }}&date={% now "Y-m-d" %}{% endif %}">Mark attendance</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  {% if course_options %}
+    <section class="card" id="course-filter">
+      <form method="get" class="inline-form">
+        <label class="visually-hidden" for="course-select">Filter by course</label>
+        <select id="course-select" name="course" class="select" onchange="this.form.submit()">
+          <option value="">All courses</option>
+          {% for option in course_options %}
+            <option value="{{ option.pk }}" {% if course and course.pk == option.pk %}selected{% endif %}>
+              {{ option.code }} - {{ option.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </form>
+    </section>
+  {% endif %}
+
+  {% if summary %}
+    <div class="summary-grid">
+      {% for row in summary %}
+        <div class="summary-stat">
+          <strong>{{ row.total }}</strong>
+          <span>{{ row.course__code }} records</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <section class="card">
+    <div class="card-header">
+      <h2>{% if course %}{{ course.code }} attendance{% else %}Attendance records{% endif %}</h2>
+    </div>
+    {% if records %}
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              {% if not user.is_student %}<th>Student</th>{% endif %}
+              <th>Course</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for record in records %}
+              <tr>
+                {% if not user.is_student %}<td>{{ record.student.display_name }}</td>{% endif %}
+                <td>{{ record.course.code }}</td>
+                <td>{{ record.date|date:"j M Y" }}</td>
+                <td><span class="badge badge-{{ record.status }}">{{ record.get_status_display }}</span></td>
+                <td>{{ record.notes|default:"—" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        {% include "components/icons/calendar.html" %}
+        <p>
+          {% if user.is_student %}No attendance has been recorded for you yet.
+          {% elif course %}No attendance has been recorded for this course yet.
+          {% else %}No attendance has been recorded yet.{% endif %}
+        </p>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

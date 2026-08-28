@@ -1,0 +1,58 @@
+{% extends "base_app.html" %}
+
+{% block title %}Grade report &middot; EduLog{% endblock %}
+{% block page_title %}Grade report{% endblock %}
+{% block page_subtitle %}
+  <p>{% if course %}{{ course.code }} - {{ course.name }}{% else %}All your courses.{% endif %}</p>
+{% endblock %}
+
+{% block page_actions %}
+  <a class="btn btn-secondary" href="{% url 'grade_list' %}{% if course %}?course={{ course.pk }}{% endif %}">All grades</a>
+  <a class="btn btn-primary" href="{% url 'grade_add' %}{% if course %}?course={{ course.pk }}{% endif %}">Add grade</a>
+{% endblock %}
+
+{% block content %}
+  <section class="card" id="course-filter">
+    <form method="get" class="inline-form">
+      <label class="visually-hidden" for="course-select">Filter by course</label>
+      <select id="course-select" name="course" class="select" onchange="this.form.submit()">
+        <option value="">All courses</option>
+        {% for option in course_options %}
+          <option value="{{ option.pk }}" {% if course and course.pk == option.pk %}selected{% endif %}>
+            {{ option.code }} - {{ option.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </form>
+  </section>
+
+  <div class="summary-grid">
+    <div class="summary-stat"><strong>{{ stats.count|default:0 }}</strong><span>grades</span></div>
+    <div class="summary-stat"><strong>{{ stats.average|floatformat:2|default:"—" }}</strong><span>average %</span></div>
+    <div class="summary-stat"><strong>{{ stats.highest|floatformat:2|default:"—" }}</strong><span>highest</span></div>
+    <div class="summary-stat"><strong>{{ stats.lowest|floatformat:2|default:"—" }}</strong><span>lowest</span></div>
+    <div class="summary-stat"><strong>{{ pass_rate }}%</strong><span>passing</span></div>
+  </div>
+
+  <section class="card">
+    <div class="card-header">
+      <h2>Distribution</h2>
+    </div>
+    {% if stats.count %}
+      {% for bucket in distribution %}
+        <div class="dist-row">
+          <span class="key">{{ bucket.letter }}</span>
+          <div class="dist-track" role="img" aria-label="{{ bucket.label }}: {{ bucket.count }} grades">
+            <div class="dist-fill" style="width: {{ bucket.percent }}%"></div>
+          </div>
+          <span class="num">{{ bucket.count }}</span>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">
+        {% include "components/icons/chart.html" %}
+        <p>No grades to chart yet.</p>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

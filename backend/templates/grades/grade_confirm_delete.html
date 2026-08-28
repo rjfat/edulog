@@ -1,0 +1,23 @@
+{% extends "base_app.html" %}
+
+{% block title %}Delete grade &middot; EduLog{% endblock %}
+{% block page_title %}Delete grade{% endblock %}
+{% block page_subtitle %}<p>This cannot be undone.</p>{% endblock %}
+
+{% block content %}
+  <div class="card card--form">
+    <p>
+      Delete the <strong>{{ grade.grade }}</strong> recorded for
+      <strong>{{ grade.student.display_name }}</strong> on
+      <strong>{{ grade.assignment_name }}</strong> ({{ grade.course.code }})?
+    </p>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-actions">
+        <button type="submit" class="btn btn-danger">Delete grade</button>
+        <a class="btn btn-ghost" href="{% url 'grade_list' %}">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

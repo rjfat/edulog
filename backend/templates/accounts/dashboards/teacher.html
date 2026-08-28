@@ -30,7 +30,59 @@
     {% endif %}
   </section>
 
-  {% include "components/panel_pending.html" with panel_title="Grading to do" panel_message="Nothing is waiting to be graded." %}
-  {% include "components/panel_pending.html" with panel_title="Today's attendance" panel_message="No classes are scheduled for today." %}
+  <section class="card">
+    <div class="card-header">
+      <h2>Recent grades</h2>
+    </div>
+    {% if recent_grades %}
+      <ul class="roster">
+        {% for grade in recent_grades %}
+          <li class="roster-item">
+            <div class="roster-item-info">
+              <p class="roster-item-name">{{ grade.student.display_name }}</p>
+              <p class="roster-item-meta">{{ grade.course.code }} · {{ grade.assignment_name }}</p>
+            </div>
+            <span class="badge badge-grade">{{ grade.grade }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+      <div class="form-actions">
+        <a class="btn btn-secondary" href="{% url 'grade_list' %}">View grades</a>
+      </div>
+    {% else %}
+      {% include "components/panel_pending.html" with panel_title="Recent grades" panel_message="Nothing has been graded yet." %}
+      <div class="form-actions">
+        <a class="btn btn-primary" href="{% url 'grade_add' %}">Add a grade</a>
+      </div>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <h2>Recent attendance</h2>
+    </div>
+    {% if today_attendance %}
+      <ul class="roster">
+        {% for record in today_attendance %}
+          <li class="roster-item">
+            <div class="roster-item-info">
+              <p class="roster-item-name">{{ record.student.display_name }} · {{ record.course.code }}</p>
+              <p class="roster-item-meta">{{ record.date|date:"j M Y" }}</p>
+            </div>
+            <span class="badge badge-{{ record.status }}">{{ record.get_status_display }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+      <div class="form-actions">
+        <a class="btn btn-secondary" href="{% url 'attendance_list' %}">View attendance</a>
+      </div>
+    {% else %}
+      {% include "components/panel_pending.html" with panel_title="Recent attendance" panel_message="No attendance has been recorded." %}
+      <div class="form-actions">
+        <a class="btn btn-primary" href="{% url 'attendance_mark' %}">Mark attendance</a>
+      </div>
+    {% endif %}
+  </section>
+
   {% include "components/panel_pending.html" with panel_title="Messages" panel_message="Your inbox is empty." %}
 {% endblock %}

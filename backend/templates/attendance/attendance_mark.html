@@ -1,0 +1,77 @@
+{% extends "base_app.html" %}
+
+{% block title %}Mark attendance &middot; EduLog{% endblock %}
+{% block page_title %}Mark attendance{% endblock %}
+{% block page_subtitle %}
+  <p>Record attendance for a class. {% if course %}Marking {{ course.code }} - {{ course.name }}.{% endif %}</p>
+{% endblock %}
+
+{% block content %}
+  <div class="grid {% if mark_rows %}grid-2{% endif %}">
+    <section class="card card--form">
+      <div class="card-header">
+        <h2>Class</h2>
+      </div>
+      <form method="post" data-submit-feedback novalidate>
+        {% csrf_token %}
+        {% include "components/error_summary.html" with form=mark_form %}
+
+        {% if mark_rows %}
+          <input type="hidden" name="course" value="{{ course.pk }}">
+          <input type="hidden" name="date" value="{{ date|date:'Y-m-d' }}">
+        {% else %}
+          {% include "components/field.html" with field=mark_form.course %}
+          {% include "components/field.html" with field=mark_form.date %}
+        {% endif %}
+
+        <div class="form-actions">
+          {% if mark_rows %}
+            <button type="submit" class="btn btn-secondary" data-busy-label="Choosing...">Choose another</button>
+          {% else %}
+            <button type="submit" class="btn btn-primary" data-busy-label="Loading...">Load roster</button>
+          {% endif %}
+        </div>
+      </form>
+    </section>
+
+    {% if mark_rows %}
+      <section class="card card--form">
+        <div class="card-header">
+          <h2>Students</h2>
+          <span class="badge badge-student">{{ course.code }}</span>
+        </div>
+
+        <form method="post" action="{% url 'attendance_mark' %}" data-submit-feedback novalidate>
+          {% csrf_token %}
+          {{ rows_formset.management_form }}
+
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Status</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for student, row in mark_rows %}
+                  <tr>
+                    <td>{{ student.display_name }}</td>
+                    <td class="status-cell">{{ row.status }}</td>
+                    <td>{{ row.notes }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" name="save_attendance" class="btn btn-primary" data-busy-label="Saving...">Save attendance</button>
+            <a class="btn btn-ghost" href="{% url 'attendance_list' %}">Cancel</a>
+          </div>
+        </form>
+      </section>
+    {% endif %}
+  </div>
+{% endblock %}
