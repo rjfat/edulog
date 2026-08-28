@@ -98,8 +98,8 @@
     var forms = document.querySelectorAll('form[data-submit-feedback]');
 
     Array.prototype.forEach.call(forms, function (form) {
-      form.addEventListener('submit', function () {
-        var button = form.querySelector('button[type="submit"]');
+      form.addEventListener('submit', function (event) {
+        var button = event.submitter || form.querySelector('button[type="submit"]');
         if (!button || button.dataset.busy === 'true') return;
 
         button.dataset.busy = 'true';
@@ -107,6 +107,25 @@
         button.textContent = button.dataset.busyLabel || 'Working...';
         // aria-disabled rather than disabled, so the value still posts.
         button.setAttribute('aria-disabled', 'true');
+      });
+    });
+  }
+
+  /* --- Confirm before destructive actions ---------------------------------- */
+
+  function initConfirmPrompts() {
+    var forms = document.querySelectorAll('form');
+
+    Array.prototype.forEach.call(forms, function (form) {
+      form.addEventListener('submit', function (event) {
+        var button = event.submitter;
+        if (!button || !button.hasAttribute('data-confirm')) return;
+        if (button.dataset.confirmed === 'true') return;
+        event.preventDefault();
+        if (window.confirm(button.dataset.confirm)) {
+          button.dataset.confirmed = 'true';
+          button.click();
+        }
       });
     });
   }
@@ -122,6 +141,7 @@
     initSidebar();
     initPasswordToggles();
     initSubmitFeedback();
+    initConfirmPrompts();
     focusErrorSummary();
   });
 })();

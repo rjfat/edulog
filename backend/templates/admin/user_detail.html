@@ -1,0 +1,138 @@
+{% extends "base_app.html" %}
+
+{% block title %}{{ profile_user.display_name }} &middot; EduLog{% endblock %}
+{% block page_title %}{{ profile_user.display_name }}{% endblock %}
+{% block page_subtitle %}
+  <p>{{ profile_user.get_role_display }}{% if profile_user.email %} &middot; {{ profile_user.email }}{% endif %}</p>
+{% endblock %}
+
+{% block page_actions %}
+  {% if profile_user.pk != request.user.pk %}
+    <a class="btn btn-secondary" href="{% url 'user_edit' profile_user.pk %}">Edit</a>
+    <a class="btn btn-danger" href="{% url 'user_delete' profile_user.pk %}">Delete</a>
+  {% else %}
+    <a class="btn btn-secondary" href="{% url 'profile_edit' %}">Edit my profile</a>
+  {% endif %}
+  <a class="btn btn-ghost" href="{% url 'user_list' %}">Back to users</a>
+{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <div class="card-header">
+      <h2>Account</h2>
+    </div>
+    {% include "components/avatar.html" with profile_user=profile_user avatar_class="avatar-lg" %}
+    <dl class="detail-list">
+      <div><dt>Username</dt><dd>{{ profile_user.username }}</dd></div>
+      <div><dt>Role</dt><dd><span class="badge badge-{{ profile_user.role }}">{{ profile_user.get_role_display }}</span></dd></div>
+      <div><dt>Status</dt><dd>{% if profile_user.is_active %}Active{% else %}Inactive{% endif %}</dd></div>
+      <div><dt>Phone</dt><dd>{{ profile_user.phone|default:"—" }}</dd></div>
+      <div><dt>Address</dt><dd>{{ profile_user.address|default:"—" }}</dd></div>
+      <div><dt>Joined</dt><dd>{{ profile_user.date_joined|date:"F j, Y" }}</dd></div>
+      <div><dt>Last sign in</dt><dd>{{ profile_user.last_login|date:"F j, Y g:i A"|default:"Never" }}</dd></div>
+    </dl>
+  </section>
+
+  {% if profile_user.is_teacher %}
+    <section class="card">
+      <div class="card-header"><h2>Courses taught</h2></div>
+      {% if courses_taught %}
+        <ul class="roster">
+          {% for course in courses_taught %}
+            <li class="roster-item">
+              <div class="roster-item-info">
+                <p class="roster-item-name">{{ course.code }} - {{ course.name }}</p>
+                <p class="roster-item-meta">{{ course.enrollments.count }} student{{ course.enrollments.count|pluralize }}</p>
+              </div>
+              <a class="btn btn-sm btn-secondary" href="{% url 'course_detail' course.pk %}">View</a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="empty-state">
+          {% include "components/icons/book.html" %}
+          <p>Not teaching any courses.</p>
+        </div>
+      {% endif %}
+    </section>
+  {% endif %}
+
+  {% if profile_user.is_student %}
+    <div class="grid grid-2">
+      <section class="card">
+        <div class="card-header"><h2>Enrollments</h2></div>
+        {% if enrollments %}
+          <ul class="roster">
+            {% for enrollment in enrollments %}
+              <li class="roster-item">
+                <div class="roster-item-info">
+                  <p class="roster-item-name">{{ enrollment.course.code }} - {{ enrollment.course.name }}</p>
+                  <p class="roster-item-meta">{{ enrollment.course.teacher.display_name }}</p>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="empty-state">
+            {% include "components/icons/users.html" %}
+            <p>Not enrolled in any courses.</p>
+          </div>
+        {% endif %}
+      </section>
+
+      <section class="card">
+        <div class="card-header"><h2>Recent attendance</h2></div>
+        {% if recent_attendance %}
+          <ul class="roster">
+            {% for record in recent_attendance %}
+              <li class="roster-item">
+                <div class="roster-item-info">
+                  <p class="roster-item-name">{{ record.course.code }} &middot; {{ record.date }}</p>
+                </div>
+                <span class="badge badge-{{ record.status }}">{{ record.get_status_display }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="empty-state">
+            {% include "components/icons/calendar.html" %}
+            <p>No attendance recorded.</p>
+          </div>
+        {% endif %}
+      </section>
+    </div>
+
+    <section class="card">
+      <div class="card-header"><h2>Recent grades</h2></div>
+      {% if recent_grades %}
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col">Course</th>
+                <th scope="col">Assignment</th>
+                <th scope="col">Grade</th>
+                <th scope="col">%</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for grade in recent_grades %}
+                <tr>
+                  <td>{{ grade.course.code }}</td>
+                  <td>{{ grade.assignment_name }}</td>
+                  <td><span class="badge badge-{% if grade.is_pass %}success{% else %}danger{% endif %}">{{ grade.grade }}</span></td>
+                  <td>{{ grade.percentage|floatformat:2 }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state">
+          {% include "components/icons/chart.html" %}
+          <p>No grades recorded.</p>
+        </div>
+      {% endif %}
+    </section>
+  {% endif %}
+{% endblock %}

@@ -16,6 +16,7 @@ urlpatterns = [
     path('announcements/', include('apps.announcements.urls')),
     path('messages/', include('apps.messaging.urls')),
     path('schedule/', include('apps.schedule.urls')),
+    path('reports/', include('apps.reports.urls')),
 ]
 
 if settings.DEBUG:

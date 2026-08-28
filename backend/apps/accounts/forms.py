@@ -95,3 +95,76 @@ class ProfileForm(StyledFormMixin, forms.ModelForm):
         if taken.exists():
             raise ValidationError('An account with this email already exists.')
         return email
+
+
+class UserCreateForm(StyledFormMixin, UserCreationForm):
+    """Admin-only account creation; unlike signup, admins and active flags allowed."""
+
+    role = forms.ChoiceField(label='Role', choices=Role.choices)
+    is_active = forms.BooleanField(
+        label='Active', required=False, initial=True,
+        help_text='Inactive accounts cannot sign in.',
+    )
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'username', 'email', 'role', 'phone', 'address', 'is_active']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
+        self.fields['username'].widget.attrs['autocomplete'] = 'off'
+        self.fields['password1'].widget.attrs['autocomplete'] = 'new-password'
+        self.fields['password2'].widget.attrs['autocomplete'] = 'new-password'
+
+    def clean_email(self):
+        email = self.cleaned_data['email'].lower()
+        if User.objects.filter(email__iexact=email).exists():
+            raise ValidationError('An account with this email already exists.')
+        return email
+
+
+class UserEditForm(StyledFormMixin, forms.ModelForm):
+    """Admin-only edits. Password stays untouched unless the field is filled."""
+
+    password = forms.CharField(
+        label='New password',
+        required=False,
+        strip=False,
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
+        help_text='Leave blank to keep the current one.',
+    )
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'username', 'email', 'role', 'phone', 'address', 'is_active']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
+
+    def clean_email(self):
+        email = self.cleaned_data['email'].lower()
+        taken = User.objects.filter(email__iexact=email).exclude(pk=self.instance.pk)
+        if taken.exists():
+            raise ValidationError('An account with this email already exists.')
+        return email
+
+    def clean_password(self):
+        password = self.cleaned_data['password']
+        if password:
+            from django.contrib.auth.password_validation import validate_password
+
+            validate_password(password, user=self.instance)
+        return password
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        password = self.cleaned_data.get('password')
+        if password:
+            user.set_password(password)
+        if commit:
+            user.save()
+        return user

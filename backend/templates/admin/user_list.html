@@ -1,0 +1,99 @@
+{% extends "base_app.html" %}
+
+{% block title %}Manage users &middot; EduLog{% endblock %}
+{% block page_title %}Manage users{% endblock %}
+{% block page_subtitle %}<p>Create, edit, filter and bulk-manage every account.</p>{% endblock %}
+
+{% block page_actions %}
+  <a class="btn btn-primary" href="{% url 'user_create' %}">New user</a>
+{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <form method="get" class="inline-form">
+      <label for="role-filter" class="visually-hidden">Filter by role</label>
+      <select id="role-filter" name="role" class="select" onchange="this.form.submit()">
+        <option value="">All roles</option>
+        {% for value, label in role_options %}
+          <option value="{{ value }}" {% if filter_role == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+
+      <label class="visually-hidden" for="user-search">Search users</label>
+      <input id="user-search" class="input" type="search" name="q" value="{{ filter_query }}"
+             placeholder="Search by name, username or email">
+      <button type="submit" class="btn btn-secondary">Search</button>
+      {% if filter_role or filter_query %}
+        <a class="btn btn-ghost" href="{% url 'user_list' %}">Clear</a>
+      {% endif %}
+    </form>
+  </section>
+
+  {% if page_obj %}
+    <form method="post" action="{% url 'user_list' %}" data-submit-feedback>
+      {% csrf_token %}
+      <section class="card">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col"><span class="visually-hidden">Select</span></th>
+                <th scope="col">User</th>
+                <th scope="col">Role</th>
+                <th scope="col">Email</th>
+                <th scope="col">Status</th>
+                <th scope="col"><span class="visually-hidden">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user in page_obj %}
+                <tr>
+                  <td>
+                    <input type="checkbox" name="selected" value="{{ user.pk }}"
+                           {% if user.pk == request.user.pk %}disabled{% endif %}
+                           aria-label="Select {{ user.display_name }}">
+                  </td>
+                  <td>
+                    <a href="{% url 'user_detail' user.pk %}">{{ user.display_name }}</a>
+                  </td>
+                  <td><span class="badge badge-{{ user.role }}">{{ user.get_role_display }}</span></td>
+                  <td>{{ user.email }}</td>
+                  <td>{% if user.is_active %}Active{% else %}Inactive{% endif %}</td>
+                  <td>
+                    <a class="btn btn-sm btn-secondary" href="{% url 'user_edit' user.pk %}">Edit</a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" name="action" value="activate" class="btn btn-secondary">Activate selected</button>
+          <button type="submit" name="action" value="deactivate" class="btn btn-secondary">Deactivate selected</button>
+          <button type="submit" name="action" value="delete" class="btn btn-danger"
+                  data-confirm="Delete the selected accounts? This cannot be undone.">Delete selected</button>
+        </div>
+      </section>
+    </form>
+
+    {% if page_obj.has_other_pages %}
+      <nav class="pagination" aria-label="Pages">
+        {% if page_obj.has_previous %}
+          <a class="btn btn-sm btn-secondary" href="?page={{ page_obj.previous_page_number }}{% if filter_role %}&amp;role={{ filter_role }}{% endif %}{% if filter_query %}&amp;q={{ filter_query|urlencode }}{% endif %}">Previous</a>
+        {% endif %}
+        <span class="pagination-info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+          <a class="btn btn-sm btn-secondary" href="?page={{ page_obj.next_page_number }}{% if filter_role %}&amp;role={{ filter_role }}{% endif %}{% if filter_query %}&amp;q={{ filter_query|urlencode }}{% endif %}">Next</a>
+        {% endif %}
+      </nav>
+    {% endif %}
+  {% else %}
+    <section class="card">
+      <div class="empty-state">
+        {% include "components/icons/users.html" %}
+        <p>No accounts match your filters.</p>
+      </div>
+    </section>
+  {% endif %}
+{% endblock %}

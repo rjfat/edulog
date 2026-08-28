@@ -1,0 +1,59 @@
+{% extends "base_app.html" %}
+
+{% block title %}Audit log &middot; EduLog{% endblock %}
+{% block page_title %}Audit log{% endblock %}
+{% block page_subtitle %}<p>Who did what, and when, across the school.</p>{% endblock %}
+
+{% block content %}
+  <section class="card">
+    {% if page_obj %}
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col">When</th>
+              <th scope="col">Who</th>
+              <th scope="col">Action</th>
+              <th scope="col">Details</th>
+              <th scope="col">IP address</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in page_obj %}
+              <tr>
+                <td>{{ entry.created_at|date:"M j, Y g:i A" }}</td>
+                <td>
+                  {% if entry.user %}
+                    <a href="{% url 'user_detail' entry.user.pk %}">{{ entry.user.display_name }}</a>
+                  {% else %}
+                    System / deleted user
+                  {% endif %}
+                </td>
+                <td><span class="badge">{{ entry.action }}</span></td>
+                <td>{{ entry.details }}</td>
+                <td>{{ entry.ip_address|default:"—" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if page_obj.has_other_pages %}
+        <nav class="pagination" aria-label="Pages">
+          {% if page_obj.has_previous %}
+            <a class="btn btn-sm btn-secondary" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+          {% endif %}
+          <span class="pagination-info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+          {% if page_obj.has_next %}
+            <a class="btn btn-sm btn-secondary" href="?page={{ page_obj.next_page_number }}">Next</a>
+          {% endif %}
+        </nav>
+      {% endif %}
+    {% else %}
+      <div class="empty-state">
+        {% include "components/icons/inbox.html" %}
+        <p>No activity has been recorded yet.</p>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

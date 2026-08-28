@@ -1,0 +1,109 @@
+{% extends "base_app.html" %}
+
+{% block title %}Student report &middot; EduLog{% endblock %}
+{% block page_title %}Student report{% endblock %}
+{% block page_subtitle %}<p>Pick a student to see their grades and attendance.</p>{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <form method="get" class="inline-form">
+      {% include "components/field.html" with field=form.student %}
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Generate</button>
+      </div>
+    </form>
+  </section>
+
+  {% if student %}
+    <div class="summary-grid">
+      <div class="summary-stat"><strong>{{ stats.count|default:0 }}</strong><span>grades</span></div>
+      <div class="summary-stat"><strong>{{ stats.average|floatformat:2|default:"—" }}</strong><span>average %</span></div>
+      <div class="summary-stat"><strong>{{ stats.highest|floatformat:2|default:"—" }}</strong><span>highest</span></div>
+      <div class="summary-stat"><strong>{{ stats.lowest|floatformat:2|default:"—" }}</strong><span>lowest</span></div>
+      <div class="summary-stat"><strong>{{ stats.pass_rate|default:0 }}%</strong><span>passing</span></div>
+    </div>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Attendance</h2>
+        <span class="stat-hint">
+          {{ overall_attendance.present }} present &middot;
+          {{ overall_attendance.absent }} absent &middot;
+          {{ overall_attendance.late }} late
+        </span>
+      </div>
+      {% if by_course %}
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col">Course</th>
+                <th scope="col">Average %</th>
+                <th scope="col">Grades</th>
+                <th scope="col">Present</th>
+                <th scope="col">Absent</th>
+                <th scope="col">Late</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in by_course %}
+                <tr>
+                  <td>{{ row.course__code }} - {{ row.course__name }}</td>
+                  <td>{{ row.average|floatformat:2|default:"—" }}</td>
+                  <td>{{ row.grade_count }}</td>
+                  <td>{{ row.attendance.present }}</td>
+                  <td>{{ row.attendance.absent }}</td>
+                  <td>{{ row.attendance.late }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state">
+          {% include "components/icons/calendar.html" %}
+          <p>No attendance recorded for this student yet.</p>
+        </div>
+      {% endif %}
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Grades</h2>
+        <a class="btn btn-sm btn-secondary"
+           href="{% url 'report_student' %}?student={{ student.pk }}&amp;format=csv">Export CSV</a>
+      </div>
+      {% if grades %}
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col">Course</th>
+                <th scope="col">Assignment</th>
+                <th scope="col">Grade</th>
+                <th scope="col">%</th>
+                <th scope="col">Comments</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for grade in grades %}
+                <tr>
+                  <td>{{ grade.course.code }}</td>
+                  <td>{{ grade.assignment_name }}</td>
+                  <td><span class="badge badge-{% if grade.is_pass %}success{% else %}danger{% endif %}">{{ grade.grade }}</span></td>
+                  <td>{{ grade.percentage|floatformat:2 }}</td>
+                  <td>{{ grade.comments|default:"—" }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state">
+          {% include "components/icons/chart.html" %}
+          <p>No grades recorded for this student yet.</p>
+        </div>
+      {% endif %}
+    </section>
+  {% endif %}
+{% endblock %}

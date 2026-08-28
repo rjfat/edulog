@@ -1,0 +1,70 @@
+{% extends "base_app.html" %}
+
+{% block title %}Attendance report &middot; EduLog{% endblock %}
+{% block page_title %}Attendance report{% endblock %}
+{% block page_subtitle %}<p>Presence, absences and lateness for a course.</p>{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <form method="get" class="inline-form">
+      {% include "components/field.html" with field=form.course %}
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Generate</button>
+      </div>
+    </form>
+  </section>
+
+  {% if course %}
+    <div class="summary-grid">
+      <div class="summary-stat"><strong>{{ enrolled }}</strong><span>enrolled</span></div>
+      <div class="summary-stat"><strong>{{ dates_with_records }}</strong><span>days recorded</span></div>
+      <div class="summary-stat"><strong>{{ overall.present }}</strong><span>present</span></div>
+      <div class="summary-stat"><strong>{{ overall.absent }}</strong><span>absent</span></div>
+      <div class="summary-stat"><strong>{{ overall.late }}</strong><span>late</span></div>
+      <div class="summary-stat"><strong>{{ overall.rate|default:0 }}%</strong><span>attendance rate</span></div>
+    </div>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Students</h2>
+        <a class="btn btn-sm btn-secondary"
+           href="{% url 'report_attendance' %}?course={{ course.pk }}&amp;format=csv">Export CSV</a>
+      </div>
+      {% if rows %}
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col">Student</th>
+                <th scope="col">Present</th>
+                <th scope="col">Absent</th>
+                <th scope="col">Late</th>
+                <th scope="col">Total</th>
+                <th scope="col">Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in rows %}
+                <tr>
+                  <td>{{ row.student__first_name }} {{ row.student__last_name }}</td>
+                  <td>{{ row.present }}</td>
+                  <td>{{ row.absent }}</td>
+                  <td>{{ row.late }}</td>
+                  <td>{{ row.total }}</td>
+                  <td>
+                    <span class="badge badge-{% if row.rate >= 90 %}success{% elif row.rate >= 75 %}late{% else %}danger{% endif %}">{{ row.rate }}%</span>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state">
+          {% include "components/icons/calendar.html" %}
+          <p>No attendance recorded for this course yet.</p>
+        </div>
+      {% endif %}
+    </section>
+  {% endif %}
+{% endblock %}

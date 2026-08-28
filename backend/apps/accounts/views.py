@@ -10,17 +10,26 @@ from django.contrib.auth.views import (
     PasswordResetDoneView,
     PasswordResetView,
 )
+from django.core.paginator import Paginator
 from django.db.models import Count, Q
-from django.shortcuts import redirect, render
-from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse, reverse_lazy
 
 from apps.announcements.models import Announcement
 from apps.attendance.models import Attendance
 from apps.courses.models import Course, Enrollment
 from apps.grades.models import Grade
 from apps.messaging.models import Message
+from apps.reports.audit import log_action
 
-from .forms import LoginForm, ProfileForm, RegistrationForm
+from .decorators import admin_required
+from .forms import (
+    LoginForm,
+    ProfileForm,
+    RegistrationForm,
+    UserCreateForm,
+    UserEditForm,
+)
 from .models import Role, User
 
 
@@ -89,12 +98,17 @@ def dashboard(request):
             students=Count('pk', filter=Q(role=Role.STUDENT)),
             parents=Count('pk', filter=Q(role=Role.PARENT)),
         )
+        from apps.reports.models import AuditLog
+
         context = {
             'user_count': counts['total'],
             'teacher_count': counts['teachers'],
             'student_count': counts['students'],
             'parent_count': counts['parents'],
             'course_count': Course.objects.count(),
+            'enrollment_count': Enrollment.objects.count(),
+            'grade_count': Grade.objects.count(),
+            'recent_activity': AuditLog.recent(limit=8),
         }
     elif request.user.is_teacher:
         context = {
@@ -171,3 +185,117 @@ class EduLogPasswordResetConfirmView(PasswordResetConfirmView):
 
 class EduLogPasswordResetCompleteView(PasswordResetCompleteView):
     template_name = 'accounts/password_reset_complete.html'
+
+
+def _user_queryset(request):
+    users = User.objects.all()
+    role = request.GET.get('role', '')
+    query = request.GET.get('q', '').strip()
+    if role in Role.values:
+        users = users.filter(role=role)
+    if query:
+        users = users.filter(
+            Q(username__icontains=query)
+            | Q(first_name__icontains=query)
+            | Q(last_name__icontains=query)
+            | Q(email__icontains=query)
+        )
+    return users
+
+
+@admin_required
+def user_list(request):
+    if request.method == 'POST':
+        return _user_list_bulk(request)
+
+    role_counts = {
+        row['role']: row['count'] for row in User.objects.values('role').annotate(count=Count('pk'))
+    }
+    page_obj = Paginator(_user_queryset(request).order_by('last_name', 'first_name').distinct(), 20).get_page(
+        request.GET.get('page')
+    )
+
+    return render(request, 'admin/user_list.html', {
+        'page_obj': page_obj,
+        'role_counts': role_counts,
+        'role_options': Role.choices,
+        'filter_role': request.GET.get('role', ''),
+        'filter_query': request.GET.get('q', ''),
+    })
+
+
+def _user_list_bulk(request):
+    ids = [int(pk) for pk in request.POST.getlist('selected') if pk.isdigit()]
+    action = request.POST.get('action', '')
+    targets = User.objects.filter(pk__in=ids).exclude(pk=request.user.pk)
+    count = targets.count()
+
+    if action == 'activate':
+        targets.update(is_active=True)
+        messages.success(request, f'{count} account{"s" if count != 1 else ""} activated.')
+    elif action == 'deactivate':
+        targets.update(is_active=False)
+        messages.success(request, f'{count} account{"s" if count != 1 else ""} deactivated.')
+    elif action == 'delete':
+        targets.delete()
+        messages.success(request, f'{count} account{"s" if count != 1 else ""} deleted.')
+    else:
+        messages.error(request, 'Choose an action to apply.')
+
+    return redirect('user_list')
+
+
+@admin_required
+def user_detail(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    context = {
+        'profile_user': user,
+        'enrollments': user.enrollments.select_related('course')[:10],
+        'recent_grades': user.grades.select_related('course').order_by('-created_at')[:10],
+        'recent_attendance': user.attendance.select_related('course').order_by('-date')[:10],
+        'courses_taught': user.courses_taught.all()[:10],
+    }
+    if user.is_teacher:
+        context['class_size'] = user.courses_taught.aggregate(total=Count('enrollments'))['total']
+    return render(request, 'admin/user_detail.html', context)
+
+
+@admin_required
+def user_create(request):
+    form = UserCreateForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        user = form.save()
+        log_action('user.created', f'{user.display_name} ({user.get_role_display()})')
+        messages.success(request, f'Account for {user.display_name} has been created.')
+        return redirect('user_detail', pk=user.pk)
+
+    return render(request, 'admin/user_form.html', {'form': form, 'editing': False, 'profile_user': None})
+
+
+@admin_required
+def user_edit(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    form = UserEditForm(request.POST or None, instance=user)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        log_action('user.updated', f'{user.display_name} ({user.get_role_display()})')
+        messages.success(request, f'Account for {user.display_name} has been updated.')
+        return redirect('user_detail', pk=user.pk)
+
+    return render(request, 'admin/user_form.html', {'form': form, 'editing': True, 'profile_user': user})
+
+
+@admin_required
+def user_delete(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    if user.pk == request.user.pk:
+        messages.error(request, 'You cannot delete your own account.')
+        return redirect('user_detail', pk=user.pk)
+
+    if request.method == 'POST':
+        name = user.display_name
+        user.delete()
+        messages.success(request, f'Account for {name} has been deleted.')
+        return redirect('user_list')
+
+    return render(request, 'admin/user_confirm_delete.html', {'profile_user': user})

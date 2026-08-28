@@ -67,6 +67,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'apps.reports.audit.AuditLogMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -82,6 +83,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'apps.messaging.context_processors.unread_message_count',
+                'apps.reports.context_processors.school_settings',
             ],
         },
     },

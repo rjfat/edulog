@@ -1,0 +1,43 @@
+{% extends "base_app.html" %}
+
+{% block title %}{% if editing %}Edit {{ profile_user.display_name }}{% else %}New user{% endif %} &middot; EduLog{% endblock %}
+{% block page_title %}{% if editing %}Edit {{ profile_user.display_name }}{% else %}Create account{% endif %}{% endblock %}
+{% block page_subtitle %}
+  <p>{% if editing %}Update an existing account's details and role.{% else %}Add a new person to the school.{% endif %}</p>
+{% endblock %}
+
+{% block content %}
+  <section class="card card--form">
+    {% include "components/error_summary.html" %}
+
+    <form method="post" data-submit-feedback novalidate>
+      {% csrf_token %}
+
+      <div class="grid grid-2">
+        {% include "components/field.html" with field=form.first_name %}
+        {% include "components/field.html" with field=form.last_name %}
+      </div>
+      {% include "components/field.html" with field=form.username %}
+      {% include "components/field.html" with field=form.email %}
+      {% include "components/field.html" with field=form.role %}
+      {% include "components/field.html" with field=form.phone %}
+      {% include "components/field.html" with field=form.address %}
+
+      {% if editing %}
+        {% include "components/field.html" with field=form.password %}
+      {% else %}
+        {% include "components/field.html" with field=form.password1 %}
+        {% include "components/field.html" with field=form.password2 %}
+      {% endif %}
+
+      {% include "components/field.html" with field=form.is_active %}
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" data-busy-label="Saving...">
+          {% if editing %}Save changes{% else %}Create account{% endif %}
+        </button>
+        <a class="btn btn-ghost" href="{% if editing %}{% url 'user_detail' profile_user.pk %}{% else %}{% url 'user_list' %}{% endif %}">Cancel</a>
+      </div>
+    </form>
+  </section>
+{% endblock %}

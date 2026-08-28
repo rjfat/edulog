@@ -1,0 +1,32 @@
+{% extends "base_app.html" %}
+
+{% block title %}Settings &middot; EduLog{% endblock %}
+{% block page_title %}System settings{% endblock %}
+{% block page_subtitle %}<p>The school name appears across the app and in reports.</p>{% endblock %}
+
+{% block content %}
+  <section class="card card--form">
+    {% include "components/error_summary.html" %}
+
+    <form method="post" data-submit-feedback novalidate>
+      {% csrf_token %}
+      {% include "components/field.html" with field=form.school_name %}
+      <div class="grid grid-2">
+        {% include "components/field.html" with field=form.academic_year %}
+        {% include "components/field.html" with field=form.term_label %}
+      </div>
+      {% include "components/field.html" with field=form.contact_email %}
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" data-busy-label="Saving...">Save settings</button>
+        <a class="btn btn-ghost" href="{% url 'dashboard' %}">Cancel</a>
+      </div>
+    </form>
+
+    {% if settings.updated_by %}
+      <p class="field-help">
+        Last updated by {{ settings.updated_by.display_name }} on {{ settings.updated_at|date:"F j, Y g:i A" }}.
+      </p>
+    {% endif %}
+  </section>
+{% endblock %}

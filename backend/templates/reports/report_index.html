@@ -1,0 +1,43 @@
+{% extends "base_app.html" %}
+
+{% block title %}Reports &middot; EduLog{% endblock %}
+{% block page_title %}Reports{% endblock %}
+{% block page_subtitle %}
+  <p>Export a student's grades, a class summary, or attendance as CSV.</p>
+{% endblock %}
+
+{% block content %}
+  <div class="grid grid-cards">
+    <a class="card" href="{% url 'report_student' %}">
+      <div class="card-header">
+        <h2>{% include "components/icons/user.html" %} Student report</h2>
+      </div>
+      <p>Every grade for one student, with averages and attendance.</p>
+    </a>
+
+    <a class="card" href="{% url 'report_course' %}">
+      <div class="card-header">
+        <h2>{% include "components/icons/chart.html" %} Course report</h2>
+      </div>
+      <p>Class averages, grade distribution and per-student summaries.</p>
+    </a>
+
+    <a class="card" href="{% url 'report_attendance' %}">
+      <div class="card-header">
+        <h2>{% include "components/icons/calendar.html" %} Attendance report</h2>
+      </div>
+      <p>Presence, absences and lateness across a course.</p>
+    </a>
+  </div>
+
+  {% if user.is_admin %}
+    <section class="card">
+      <div class="card-header"><h2>Administration</h2></div>
+      <div class="form-actions">
+        <a class="btn btn-secondary" href="{% url 'user_list' %}">Manage users</a>
+        <a class="btn btn-secondary" href="{% url 'audit_logs' %}">Audit log</a>
+        <a class="btn btn-secondary" href="{% url 'settings' %}">Settings</a>
+      </div>
+    </section>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "base_app.html" %}
+
+{% block title %}Course report &middot; EduLog{% endblock %}
+{% block page_title %}Course report{% endblock %}
+{% block page_subtitle %}<p>Class averages and the spread of grades for one course.</p>{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <form method="get" class="inline-form">
+      {% include "components/field.html" with field=form.course %}
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Generate</button>
+      </div>
+    </form>
+  </section>
+
+  {% if course %}
+    <div class="summary-grid">
+      <div class="summary-stat"><strong>{{ course.enrollments.count }}</strong><span>enrolled</span></div>
+      <div class="summary-stat"><strong>{{ class_average|floatformat:2|default:"—" }}</strong><span>class average %</span></div>
+      <div class="summary-stat"><strong>{{ attendance.present }}</strong><span>present</span></div>
+      <div class="summary-stat"><strong>{{ attendance.absent }}</strong><span>absent</span></div>
+      <div class="summary-stat"><strong>{{ attendance.late }}</strong><span>late</span></div>
+    </div>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Grade distribution</h2>
+        <a class="btn btn-sm btn-secondary"
+           href="{% url 'report_course' %}?course={{ course.pk }}&amp;format=csv">Export CSV</a>
+      </div>
+      {% if rows %}
+        {% for bucket in distribution %}
+          <div class="dist-row">
+            <span class="key">{{ bucket.letter }}</span>
+            <div class="dist-track" role="img" aria-label="{{ bucket.label }}: {{ bucket.count }} students">
+              <div class="dist-fill" style="width: {{ bucket.percent }}%"></div>
+            </div>
+            <span class="num">{{ bucket.count }}</span>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">
+          {% include "components/icons/chart.html" %}
+          <p>No grades recorded for this course yet.</p>
+        </div>
+      {% endif %}
+    </section>
+
+    <section class="card">
+      <div class="card-header">
+        <h2>Students</h2>
+      </div>
+      {% if rows %}
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col">Student</th>
+                <th scope="col">Assignments</th>
+                <th scope="col">Average %</th>
+                <th scope="col">Highest %</th>
+                <th scope="col">Passing</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in rows %}
+                <tr>
+                  <td>{{ row.student__first_name }} {{ row.student__last_name }}</td>
+                  <td>{{ row.count }}</td>
+                  <td>{{ row.average|floatformat:2|default:"—" }}</td>
+                  <td>{{ row.highest|floatformat:2|default:"—" }}</td>
+                  <td>{{ row.pass_count }} / {{ row.count }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state">
+          {% include "components/icons/users.html" %}
+          <p>No grades recorded for this course yet.</p>
+        </div>
+      {% endif %}
+    </section>
+  {% endif %}
+{% endblock %}

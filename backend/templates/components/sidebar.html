@@ -50,6 +50,14 @@
       {% endif %}
     </a>
 
+    {% if user.is_admin or user.is_teacher %}
+      <a class="nav-link" href="{% url 'report_index' %}"
+         {% if '/reports/' in request.path %}aria-current="page"{% endif %}>
+        {% include "components/icons/file.html" %}
+        <span>Reports</span>
+      </a>
+    {% endif %}
+
     <a class="nav-link" href="{% url 'profile' %}"
        {% if request.resolver_match.url_name == 'profile' or request.resolver_match.url_name == 'profile_edit' %}aria-current="page"{% endif %}>
       {% include "components/icons/user.html" %}
@@ -58,9 +66,18 @@
 
     {% if user.is_admin %}
       <p class="nav-heading">Administration</p>
-      <a class="nav-link" href="{% url 'admin:accounts_user_changelist' %}">
+      <a class="nav-link" href="{% url 'user_list' %}"
+         {% if request.path|slice:":9" == "/accounts/" %}aria-current="page"{% endif %}>
         {% include "components/icons/users.html" %}
         <span>Manage users</span>
+      </a>
+      <a class="nav-link" href="{% url 'audit_logs' %}">
+        {% include "components/icons/inbox.html" %}
+        <span>Audit log</span>
+      </a>
+      <a class="nav-link" href="{% url 'settings' %}">
+        {% include "components/icons/settings.html" %}
+        <span>Settings</span>
       </a>
       <a class="nav-link" href="{% url 'admin:index' %}">
         {% include "components/icons/settings.html" %}
