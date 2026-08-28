@@ -6,5 +6,26 @@
   {% include "components/panel_pending.html" with panel_title="My children" panel_message="No student has been linked to your account yet." %}
   {% include "components/panel_pending.html" with panel_title="Recent grades" panel_message="No grades have been posted yet." %}
   {% include "components/panel_pending.html" with panel_title="Attendance" panel_message="No attendance has been recorded yet." %}
-  {% include "components/panel_pending.html" with panel_title="School announcements" panel_message="There are no announcements right now." %}
+  <section class="card">
+    <div class="card-header">
+      <h2>School announcements</h2>
+    </div>
+    {% if announcements %}
+      <ul class="roster">
+        {% for announcement in announcements %}
+          <li class="roster-item">
+            <div class="roster-item-info">
+              <p class="roster-item-name">{{ announcement.title }}</p>
+              <p class="roster-item-meta">{{ announcement.author.display_name }} · {{ announcement.created_at|date:"j M Y" }}</p>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="empty-state">
+        {% include "components/icons/megaphone.html" %}
+        <p>There are no announcements right now.</p>
+      </div>
+    {% endif %}
+  </section>
 {% endblock %}

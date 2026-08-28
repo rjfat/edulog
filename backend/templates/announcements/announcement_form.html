@@ -1,0 +1,27 @@
+{% extends "base_app.html" %}
+
+{% block title %}{% if announcement %}Edit {{ announcement.title }}{% else %}New announcement{% endif %} &middot; EduLog{% endblock %}
+{% block page_title %}{% if announcement %}Edit announcement{% else %}New announcement{% endif %}{% endblock %}
+{% block page_subtitle %}
+  <p>{% if announcement %}Update this notice and repost it.{% else %}Share news with the school community.{% endif %}</p>
+{% endblock %}
+
+{% block content %}
+  <div class="card card--form">
+    {% include "components/error_summary.html" %}
+
+    <form method="post" data-submit-feedback novalidate>
+      {% csrf_token %}
+      {% include "components/field.html" with field=form.title %}
+      {% include "components/field.html" with field=form.content %}
+      {% include "components/field.html" with field=form.target_role %}
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" data-busy-label="Saving...">
+          {% if announcement %}Save changes{% else %}Post announcement{% endif %}
+        </button>
+        <a class="btn btn-ghost" href="{% url 'announcement_list' %}">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

@@ -78,5 +78,26 @@
     {% endif %}
   </section>
 
-  {% include "components/panel_pending.html" with panel_title="Announcements" panel_message="There are no announcements right now." %}
+  <section class="card">
+    <div class="card-header">
+      <h2>Announcements</h2>
+    </div>
+    {% if announcements %}
+      <ul class="roster">
+        {% for announcement in announcements %}
+          <li class="roster-item">
+            <div class="roster-item-info">
+              <p class="roster-item-name">{{ announcement.title }}</p>
+              <p class="roster-item-meta">{{ announcement.author.display_name }} · {{ announcement.created_at|date:"j M Y" }}</p>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+      <div class="form-actions">
+        <a class="btn btn-secondary" href="{% url 'announcement_list' %}">View all announcements</a>
+      </div>
+    {% else %}
+      {% include "components/panel_pending.html" with panel_title="Announcements" panel_message="There are no announcements right now." %}
+    {% endif %}
+  </section>
 {% endblock %}

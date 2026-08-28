@@ -1,0 +1,23 @@
+{% extends "base_app.html" %}
+
+{% block title %}Remove class &middot; EduLog{% endblock %}
+{% block page_title %}Remove class{% endblock %}
+{% block page_subtitle %}<p>This cannot be undone.</p>{% endblock %}
+
+{% block content %}
+  <div class="card card--form">
+    <p>
+      Remove <strong>{{ schedule.course.code }}</strong> from
+      <strong>{{ schedule.get_day_of_week_display }}</strong>
+      ({{ schedule.start_time|time:"g:i A" }} &ndash; {{ schedule.end_time|time:"g:i A" }})?
+    </p>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-actions">
+        <button type="submit" class="btn btn-danger">Remove class</button>
+        <a class="btn btn-ghost" href="{% url 'timetable' %}">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

@@ -14,12 +14,24 @@ from django.db.models import Count, Q
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 
-from apps.courses.models import Course, Enrollment
+from apps.announcements.models import Announcement
 from apps.attendance.models import Attendance
+from apps.courses.models import Course, Enrollment
 from apps.grades.models import Grade
+from apps.messaging.models import Message
 
 from .forms import LoginForm, ProfileForm, RegistrationForm
 from .models import Role, User
+
+
+def _visible_announcements(user):
+    qs = Announcement.objects.select_related('author')
+    if user.is_admin:
+        return qs
+    return qs.filter(
+        Q(target_role__in=(Announcement.TARGET_ALL, user.role)) | Q(author=user)
+    )
+
 
 # Each role gets its own dashboard template; the shared view picks one.
 DASHBOARD_TEMPLATES = {
@@ -64,7 +76,11 @@ def register(request):
 @login_required
 def dashboard(request):
     template = DASHBOARD_TEMPLATES.get(request.user.role, 'accounts/dashboards/student.html')
-    context = {}
+    context = {
+        'announcements': _visible_announcements(request.user)[:3],
+        'recent_messages': Message.objects.filter(receiver=request.user)
+        .select_related('sender')[:3],
+    }
 
     if request.user.is_admin:
         counts = User.objects.aggregate(

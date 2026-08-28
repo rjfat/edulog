@@ -84,5 +84,55 @@
     {% endif %}
   </section>
 
-  {% include "components/panel_pending.html" with panel_title="Messages" panel_message="Your inbox is empty." %}
+  <section class="card">
+    <div class="card-header">
+      <h2>Messages</h2>
+      {% if unread_message_count %}
+        <span class="badge badge-student">{{ unread_message_count }} unread</span>
+      {% endif %}
+    </div>
+    {% if recent_messages %}
+      <ul class="roster">
+        {% for message in recent_messages %}
+          <li class="roster-item">
+            <div class="roster-item-info">
+              <p class="roster-item-name"><a href="{% url 'message_detail' message.pk %}">{{ message.subject }}</a></p>
+              <p class="roster-item-meta">{{ message.sender.display_name }} · {{ message.created_at|date:"j M Y" }}</p>
+            </div>
+            {% if not message.read %}
+              <span class="badge badge-student">New</span>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+      <div class="form-actions">
+        <a class="btn btn-secondary" href="{% url 'message_inbox' %}">Go to inbox</a>
+        <a class="btn btn-primary" href="{% url 'message_compose' %}">Compose</a>
+      </div>
+    {% else %}
+      {% include "components/panel_pending.html" with panel_title="Messages" panel_message="Your inbox is empty." %}
+    {% endif %}
+  </section>
+  <section class="card">
+    <div class="card-header">
+      <h2>Announcements</h2>
+    </div>
+    {% if announcements %}
+      <ul class="roster">
+        {% for announcement in announcements %}
+          <li class="roster-item">
+            <div class="roster-item-info">
+              <p class="roster-item-name">{{ announcement.title }}</p>
+              <p class="roster-item-meta">{{ announcement.author.display_name }} · {{ announcement.created_at|date:"j M Y" }}</p>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+      <div class="form-actions">
+        <a class="btn btn-secondary" href="{% url 'announcement_list' %}">View all</a>
+      </div>
+    {% else %}
+      {% include "components/panel_pending.html" with panel_title="Announcements" panel_message="Nothing has been posted yet." %}
+    {% endif %}
+  </section>
 {% endblock %}

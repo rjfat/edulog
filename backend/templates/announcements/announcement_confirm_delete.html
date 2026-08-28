@@ -1,0 +1,21 @@
+{% extends "base_app.html" %}
+
+{% block title %}Delete announcement &middot; EduLog{% endblock %}
+{% block page_title %}Delete announcement{% endblock %}
+{% block page_subtitle %}<p>This cannot be undone.</p>{% endblock %}
+
+{% block content %}
+  <div class="card card--form">
+    <p>
+      Remove the announcement <strong>"{{ announcement.title }}"</strong>?
+    </p>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-actions">
+        <button type="submit" class="btn btn-danger">Delete announcement</button>
+        <a class="btn btn-ghost" href="{% url 'announcement_list' %}">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

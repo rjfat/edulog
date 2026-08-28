@@ -1,0 +1,25 @@
+{% extends "base_app.html" %}
+
+{% block title %}Compose &middot; EduLog{% endblock %}
+{% block page_title %}Compose{% endblock %}
+{% block page_subtitle %}
+  <p>Write a message to another member of your school.</p>
+{% endblock %}
+
+{% block content %}
+  <div class="card card--form">
+    {% include "components/error_summary.html" %}
+
+    <form method="post" data-submit-feedback novalidate>
+      {% csrf_token %}
+      {% include "components/field.html" with field=form.receiver %}
+      {% include "components/field.html" with field=form.subject %}
+      {% include "components/field.html" with field=form.body %}
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" data-busy-label="Sending...">Send message</button>
+        <a class="btn btn-ghost" href="{% url 'message_inbox' %}">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

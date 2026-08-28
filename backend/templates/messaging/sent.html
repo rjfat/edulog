@@ -1,0 +1,50 @@
+{% extends "base_app.html" %}
+
+{% block title %}Sent &middot; EduLog{% endblock %}
+{% block page_title %}Sent messages{% endblock %}
+{% block page_subtitle %}
+  <p>Messages you have written.</p>
+{% endblock %}
+
+{% block page_actions %}
+  <a class="btn btn-secondary" href="{% url 'message_inbox' %}">Inbox</a>
+  <a class="btn btn-primary" href="{% url 'message_compose' %}">Compose</a>
+{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <div class="card-header">
+      <h2>Sent</h2>
+    </div>
+    {% if message_list %}
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>To</th>
+              <th>Subject</th>
+              <th>Sent</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in message_list %}
+              <tr>
+                <td>{{ item.receiver.display_name }}</td>
+                <td><a href="{% url 'message_detail' item.pk %}">{{ item.subject }}</a></td>
+                <td>{{ item.created_at|date:"j M Y, g:i A" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        {% include "components/icons/mail.html" %}
+        <p>You have not sent any messages yet.</p>
+      </div>
+      <div class="form-actions">
+        <a class="btn btn-primary" href="{% url 'message_compose' %}">Compose a message</a>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

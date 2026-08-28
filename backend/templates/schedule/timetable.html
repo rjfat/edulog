@@ -1,0 +1,65 @@
+{% extends "base_app.html" %}
+
+{% block title %}Timetable &middot; EduLog{% endblock %}
+{% block page_title %}Timetable{% endblock %}
+{% block page_subtitle %}
+  <p>
+    {% if user.is_student %}Your weekly class schedule.
+    {% elif user.is_teacher %}The classes you teach, week by week.
+    {% else %}The weekly school timetable.{% endif %}
+  </p>
+{% endblock %}
+
+{% block page_actions %}
+  {% if user.is_admin or user.is_teacher %}
+    <a class="btn btn-primary" href="{% url 'schedule_create' %}">Add class</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  {% if has_sessions %}
+    <div class="timetable">
+      {% for day in days %}
+        <div class="timetable-day">
+          <h2 class="timetable-day-name">{{ day.label }}</h2>
+          {% for item in day.items %}
+            <div class="timetable-slot">
+              <p class="timetable-time">{{ item.start_time|time:"g:i A" }} &ndash; {{ item.end_time|time:"g:i A" }}</p>
+              <p class="timetable-course">
+                <a href="{% url 'course_detail' item.course_id %}">{{ item.course.code }}</a>
+                <span class="timetable-name">{{ item.course.name }}</span>
+              </p>
+              <p class="timetable-room">{{ item.room }}</p>
+              {% if can_manage %}
+                <p class="timetable-actions">
+                  <a class="btn btn-ghost btn-sm" href="{% url 'schedule_edit' item.pk %}">Edit</a>
+                  <a class="btn btn-danger btn-sm" href="{% url 'schedule_delete' item.pk %}">Remove</a>
+                </p>
+              {% endif %}
+            </div>
+          {% empty %}
+            <p class="timetable-free">No classes</p>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <section class="card">
+      <div class="empty-state">
+        {% include "components/icons/calendar.html" %}
+        {% if user.is_student %}
+          <p>No classes have been scheduled for your courses yet.</p>
+        {% elif user.is_teacher %}
+          <p>No classes have been scheduled for your courses yet.</p>
+        {% else %}
+          <p>No classes have been scheduled yet.</p>
+        {% endif %}
+      </div>
+      {% if user.is_admin or user.is_teacher %}
+        <div class="form-actions">
+          <a class="btn btn-primary" href="{% url 'schedule_create' %}">Add a class</a>
+        </div>
+      {% endif %}
+    </section>
+  {% endif %}
+{% endblock %}

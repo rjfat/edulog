@@ -1,0 +1,57 @@
+{% extends "base_app.html" %}
+
+{% block title %}Inbox &middot; EduLog{% endblock %}
+{% block page_title %}Inbox{% endblock %}
+{% block page_subtitle %}
+  <p>Messages sent to you.</p>
+{% endblock %}
+
+{% block page_actions %}
+  <a class="btn btn-primary" href="{% url 'message_sent' %}">Sent</a>
+  <a class="btn btn-primary" href="{% url 'message_compose' %}">Compose</a>
+{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <div class="card-header">
+      <h2>Received</h2>
+      {% if unread_message_count %}
+        <span class="badge badge-student">{{ unread_message_count }} unread</span>
+      {% endif %}
+    </div>
+    {% if message_list %}
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>From</th>
+              <th>Subject</th>
+              <th>Received</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in message_list %}
+              <tr class="{% if not item.read %}row-unread{% endif %}">
+                <td>{{ item.sender.display_name }}</td>
+                <td>
+                  <a href="{% url 'message_detail' item.pk %}">
+                    {% if not item.read %}<strong>{% endif %}{{ item.subject }}{% if not item.read %}</strong>{% endif %}
+                  </a>
+                </td>
+                <td>{{ item.created_at|date:"j M Y, g:i A" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        {% include "components/icons/inbox.html" %}
+        <p>Your inbox is empty.</p>
+      </div>
+      <div class="form-actions">
+        <a class="btn btn-primary" href="{% url 'message_compose' %}">Compose a message</a>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

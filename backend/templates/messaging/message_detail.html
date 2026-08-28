@@ -1,0 +1,34 @@
+{% extends "base_app.html" %}
+
+{% block title %}{{ message.subject }} &middot; EduLog{% endblock %}
+{% block page_title %}{{ message.subject }}{% endblock %}
+{% block page_subtitle %}
+  <p>
+    {% if message.sender_id == user.pk %}To {{ message.receiver.display_name }}{% else %}From {{ message.sender.display_name }}{% endif %}
+    &middot; {{ message.created_at|date:"j M Y, g:i A" }}
+  </p>
+{% endblock %}
+
+{% block page_actions %}
+  <a class="btn btn-secondary" href="{% url 'message_inbox' %}">Inbox</a>
+  <a class="btn btn-secondary" href="{% url 'message_sent' %}">Sent</a>
+  {% if message.sender_id != user.pk %}
+    <a class="btn btn-primary" href="{% url 'message_compose' %}?to={{ message.sender_id }}">Reply</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <section class="card">
+    <div class="card-header">
+      <h2>{{ message.subject }}</h2>
+      {% if message.sender_id == user.pk %}
+        <span class="badge badge-teacher">Sent</span>
+      {% elif message.read %}
+        <span class="badge badge-student">Read</span>
+      {% else %}
+        <span class="badge">Unread</span>
+      {% endif %}
+    </div>
+    <p>{{ message.body|linebreaksbr }}</p>
+  </section>
+{% endblock %}

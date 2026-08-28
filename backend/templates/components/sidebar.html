@@ -29,6 +29,27 @@
       <span>Attendance</span>
     </a>
 
+    <a class="nav-link" href="{% url 'announcement_list' %}"
+       {% if request.path|slice:":16" == "/announcements/" %}aria-current="page"{% endif %}>
+      {% include "components/icons/megaphone.html" %}
+      <span>Announcements</span>
+    </a>
+
+    <a class="nav-link" href="{% url 'timetable' %}"
+       {% if request.path|slice:":11" == "/schedule/" %}aria-current="page"{% endif %}>
+      {% include "components/icons/clock.html" %}
+      <span>Schedule</span>
+    </a>
+
+    <a class="nav-link" href="{% url 'message_inbox' %}"
+       {% if request.path|slice:":11" == "/messages/" %}aria-current="page"{% endif %}>
+      {% include "components/icons/mail.html" %}
+      <span>Messages</span>
+      {% if unread_message_count %}
+        <span class="nav-count" aria-label="Unread messages">{{ unread_message_count }}</span>
+      {% endif %}
+    </a>
+
     <a class="nav-link" href="{% url 'profile' %}"
        {% if request.resolver_match.url_name == 'profile' or request.resolver_match.url_name == 'profile_edit' %}aria-current="page"{% endif %}>
       {% include "components/icons/user.html" %}

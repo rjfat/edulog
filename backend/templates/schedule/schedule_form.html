@@ -1,0 +1,29 @@
+{% extends "base_app.html" %}
+
+{% block title %}{% if schedule %}Edit class schedule{% else %}New class schedule{% endif %} &middot; EduLog{% endblock %}
+{% block page_title %}{% if schedule %}Edit class{% else %}New class{% endif %}{% endblock %}
+{% block page_subtitle %}
+  <p>{% if schedule %}Update the {{ schedule.course.code }} slot on {{ schedule.get_day_of_week_display }}.{% else %}Put a course on the weekly timetable.{% endif %}</p>
+{% endblock %}
+
+{% block content %}
+  <div class="card card--form">
+    {% include "components/error_summary.html" %}
+
+    <form method="post" data-submit-feedback novalidate>
+      {% csrf_token %}
+      {% include "components/field.html" with field=form.course %}
+      {% include "components/field.html" with field=form.day_of_week %}
+      {% include "components/field.html" with field=form.start_time %}
+      {% include "components/field.html" with field=form.end_time %}
+      {% include "components/field.html" with field=form.room %}
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" data-busy-label="Saving...">
+          {% if schedule %}Save changes{% else %}Add to timetable{% endif %}
+        </button>
+        <a class="btn btn-ghost" href="{% url 'timetable' %}">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

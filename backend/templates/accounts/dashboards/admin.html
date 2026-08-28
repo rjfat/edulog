@@ -27,6 +27,35 @@
     </div>
   </section>
 
+  <section class="card">
+    <div class="card-header">
+      <h2>Announcements</h2>
+    </div>
+    {% if announcements %}
+      <ul class="roster">
+        {% for announcement in announcements %}
+          <li class="roster-item">
+            <div class="roster-item-info">
+              <p class="roster-item-name">{{ announcement.title }}</p>
+              <p class="roster-item-meta">{{ announcement.author.display_name }} · {{ announcement.get_target_role_display }}</p>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+      <div class="form-actions">
+        <a class="btn btn-secondary" href="{% url 'announcement_list' %}">View all</a>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        {% include "components/icons/megaphone.html" %}
+        <p>No announcements have been posted yet.</p>
+      </div>
+      <div class="form-actions">
+        <a class="btn btn-primary" href="{% url 'announcement_create' %}">Post one</a>
+      </div>
+    {% endif %}
+  </section>
+
   {% include "components/panel_pending.html" with panel_title="Reports" panel_message="Reporting arrives in a later phase." %}
   {% include "components/panel_pending.html" with panel_title="Audit log" panel_message="No system activity has been recorded yet." %}
 {% endblock %}

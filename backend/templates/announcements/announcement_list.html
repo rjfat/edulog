@@ -1,0 +1,49 @@
+{% extends "base_app.html" %}
+
+{% block title %}Announcements &middot; EduLog{% endblock %}
+{% block page_title %}Announcements{% endblock %}
+{% block page_subtitle %}
+  <p>News and notices from the school office.</p>
+{% endblock %}
+
+{% block page_actions %}
+  {% if user.is_admin or user.is_teacher %}
+    <a class="btn btn-primary" href="{% url 'announcement_create' %}">New announcement</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <section class="card">
+    {% if announcements %}
+      <div class="announcement-list">
+        {% for announcement in announcements %}
+          <article class="announcement">
+            <div class="card-header">
+              <h2>{{ announcement.title }}</h2>
+              <div class="announcement-meta">
+                <span class="badge badge-{{ announcement.target_role }}">{{ announcement.get_target_role_display }}</span>
+                {% if user.is_admin or announcement.author_id == user.pk %}
+                  <span class="announcement-actions">
+                    <a class="btn btn-ghost btn-sm" href="{% url 'announcement_edit' announcement.pk %}">Edit</a>
+                    <a class="btn btn-danger btn-sm" href="{% url 'announcement_delete' announcement.pk %}">Delete</a>
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+            <p class="announcement-body">{{ announcement.content|linebreaksbr }}</p>
+            <p class="stat-hint">
+              {{ announcement.author.display_name }}
+              {% if announcement.author.get_role_display %} &middot; {{ announcement.author.get_role_display }}{% endif %}
+              &middot; {{ announcement.created_at|date:"j M Y" }}
+            </p>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        {% include "components/icons/megaphone.html" %}
+        <p>No announcements have been posted yet.</p>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}
