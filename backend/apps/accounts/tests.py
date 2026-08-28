@@ -385,3 +385,127 @@ class TemplateCommentTests(TestCase):
             [],
             'Multi-line {# #} renders as visible text; use {% comment %} instead.',
         )
+
+
+class UserManagementTests(TestCase):
+    """Admin-only user CRUD, bulk actions, and the audit trail they leave."""
+
+    payload = {
+        'first_name': 'Dana',
+        'last_name': 'Okonkwo',
+        'username': 'dana',
+        'email': 'dana@example.com',
+        'role': Role.TEACHER,
+        'phone': '555-0100',
+        'address': '',
+        'is_active': 'on',
+        'password1': 'cornflower-pylon-83',
+        'password2': 'cornflower-pylon-83',
+    }
+
+    def setUp(self):
+        self.admin = make_user('amy-admin', Role.ADMIN)
+        self.client.force_login(self.admin)
+
+    def test_students_cannot_reach_user_management(self):
+        self.client.force_login(make_user())
+        response = self.client.get(reverse('user_list'))
+        self.assertRedirects(response, reverse('dashboard'))
+
+    def test_user_list_shows_accounts(self):
+        make_user('sam')
+        response = self.client.get(reverse('user_list'))
+        self.assertContains(response, 'sam')
+
+    def test_user_list_filters_by_role(self):
+        make_user('sam')
+        make_user('tina', Role.TEACHER)
+        response = self.client.get(reverse('user_list'), {'role': Role.TEACHER})
+        self.assertNotContains(response, 'sam')
+        self.assertContains(response, 'tina')
+
+    def test_creating_a_user_logs_an_entry(self):
+        response = self.client.post(reverse('user_create'), self.payload)
+        self.assertEqual(response.status_code, 302)
+
+        dana = User.objects.get(username='dana')
+        self.assertEqual(dana.role, Role.TEACHER)
+        self.assertTrue(dana.check_password('cornflower-pylon-83'))
+        self.assertTrue(dana.is_active)
+
+        from apps.reports.models import AuditLog
+
+        self.assertTrue(AuditLog.objects.filter(action='user.created').exists())
+
+    def test_creating_an_admin_role_is_allowed(self):
+        response = self.client.post(reverse('user_create'), {**self.payload, 'role': Role.ADMIN})
+        self.assertRedirects(response, reverse('user_detail', kwargs={'pk': User.objects.get(username='dana').pk}))
+
+    def test_editing_keeps_password_when_field_is_blank(self):
+        sam = make_user('sam')
+        response = self.client.post(
+            reverse('user_edit', kwargs={'pk': sam.pk}),
+            {
+                'first_name': 'Samantha',
+                'last_name': 'Rivera',
+                'username': 'sam',
+                'email': 'sam@example.com',
+                'role': Role.STUDENT,
+                'phone': '',
+                'address': '',
+                'is_active': 'on',
+                'password': '',
+            },
+        )
+        self.assertRedirects(response, reverse('user_detail', kwargs={'pk': sam.pk}))
+        sam.refresh_from_db()
+        self.assertEqual(sam.first_name, 'Samantha')
+        self.assertTrue(sam.check_password('cornflower-pylon-83'))
+
+    def test_editing_can_supply_a_new_password(self):
+        sam = make_user('sam')
+        self.client.post(
+            reverse('user_edit', kwargs={'pk': sam.pk}),
+            {
+                'first_name': 'Sam',
+                'last_name': 'Rivera',
+                'username': 'sam',
+                'email': 'sam@example.com',
+                'role': Role.STUDENT,
+                'phone': '',
+                'address': '',
+                'is_active': 'on',
+                'password': 'jackdaw-sunset-45',
+            },
+        )
+        sam.refresh_from_db()
+        self.assertTrue(sam.check_password('jackdaw-sunset-45'))
+
+    def test_self_delete_is_blocked(self):
+        response = self.client.get(reverse('user_delete', kwargs={'pk': self.admin.pk}))
+        self.assertRedirects(response, reverse('user_detail', kwargs={'pk': self.admin.pk}))
+        self.assertTrue(User.objects.filter(pk=self.admin.pk).exists())
+
+    def test_delete_removes_the_account(self):
+        sam = make_user('sam')
+        response = self.client.post(reverse('user_delete', kwargs={'pk': sam.pk}))
+        self.assertRedirects(response, reverse('user_list'))
+        self.assertFalse(User.objects.filter(pk=sam.pk).exists())
+
+    def test_bulk_deactivate(self):
+        sam = make_user('sam')
+        self.client.post(
+            reverse('user_list'),
+            {'action': 'deactivate', 'selected': [str(sam.pk)]},
+        )
+        sam.refresh_from_db()
+        self.assertFalse(sam.is_active)
+
+    def test_bulk_delete_skips_yourself(self):
+        sam = make_user('sam')
+        self.client.post(
+            reverse('user_list'),
+            {'action': 'delete', 'selected': [str(sam.pk), str(self.admin.pk)]},
+        )
+        self.assertFalse(User.objects.filter(pk=sam.pk).exists())
+        self.assertTrue(User.objects.filter(pk=self.admin.pk).exists())
